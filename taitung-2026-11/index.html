@@ -273,8 +273,8 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 </section>
 
 <!-- ===================== 2 ===================== -->
-<section class="stage" id="s2" data-min="5" data-title="去識別化：哪些欄位要處理">
-  <p class="eyebrow">02 · 去識別化原則<span class="t">5 分</span><span class="t teach">07:00–12:00</span></p>
+<section class="stage" id="s2" data-min="3" data-title="去識別化：哪些欄位要處理">
+  <p class="eyebrow">02 · 去識別化原則<span class="t">3 分</span><span class="t teach">07:00–10:00</span></p>
   <h2 class="claim">報表用不到的，就不要交給 AI。</h2>
   <div class="cards">
     <div class="card"><div class="n" style="font-size:22px">直接識別</div><div class="l">一看就知道是誰：<strong>姓名</strong></div></div>
@@ -300,13 +300,13 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   <details class="answer"><summary>先自己判斷，再展開：建議的處理方式</summary><div class="in">
     <p>姓名刪除；年齡刪除改用 Age Band；居住城市刪除；國籍泛化為「臺灣／非臺灣」；患者編號保留（假名代碼，含姓名的原檔只留在本機）；其餘保留。</p><p>Gemini 的建議如果跟解答不同（例如建議刪患者編號），請學員說出自己的判斷：<strong>報表要不要用到？CC 要不要用到？</strong></p>
   </div></details>
-  <div class="teach teach-note">三個概念：直接識別（姓名）、間接識別（年齡、居住城市、少見國籍，組合起來就認得出來）、最少必要（報表用不到就刪）。示範提示詞 A：只貼欄位名稱，不貼資料。<br>成功檢核：Gemini 回了一張逐欄建議表。</div>
+  <div class="teach teach-note">本段壓縮為 3 分：三個概念講 1 分鐘——直接識別（姓名）、間接識別（年齡、居住城市、少見國籍，組合起來就認得出來）、最少必要（報表用不到就刪）；接著 2 分鐘，講師投影示範提示詞 A（只貼欄位名稱，不貼資料），學員同步複製送出，不等全部人回完就進下一段。<br>成功檢核：Gemini 回了一張逐欄建議表（講師投影那一份也算）。</div>
   <div class="next"><a href="#s3">下一段：動手去識別化 →</a></div>
 </section>
 
 <!-- ===================== 3 ===================== -->
 <section class="stage" id="s3" data-min="8" data-title="動手：在 Excel 去識別化">
-  <p class="eyebrow">03 · 動手去識別化<span class="t">8 分</span><span class="t teach">12:00–20:00</span></p>
+  <p class="eyebrow">03 · 動手去識別化<span class="t">8 分</span><span class="t teach">10:00–18:00</span></p>
   <h2 class="claim">刪三欄、改一欄、留下編號。</h2>
   <ol class="steps">
     <li><p><strong>刪除三欄</strong>：按住 <kbd>Ctrl</kbd>（Mac：<kbd>⌘</kbd>）點選「<strong>患者姓名</strong>」「<strong>年齡</strong>」「<strong>居住城市</strong>」的欄標題 → 按右鍵 →「刪除」。</p>
@@ -339,13 +339,13 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
     <p class="gentle">「患者編號不是也能連回個人嗎？」是的，這叫假名化。所以含姓名的原檔不貼、不上傳，只留本機。要更嚴格可以改用新流水號，另存對照表。</p>
     <p>完整解答檔：<a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a>（「說明」工作表有逐欄理由）。</p>
   </div></details>
-  <div class="teach teach-note">巡堂；提醒「要刪除欄，不要只是隱藏欄」。18–20 分投影解答檔「說明」工作表：為什麼保留患者編號（對帳、找重複）、為什麼寫「非臺灣」而非「外籍」。<br>時間落後時：直接發解答檔，跳過動手，但<strong>下一段之後的貼上檢查不要省</strong>。</div>
+  <div class="teach teach-note">巡堂；提醒「要刪除欄，不要只是隱藏欄」。16–18 分投影解答檔「說明」工作表：為什麼保留患者編號（對帳、找重複）、為什麼寫「非臺灣」而非「外籍」。<br>時間落後時：直接發解答檔，跳過動手，但<strong>下一段之後的貼上檢查不要省</strong>。</div>
   <div class="next"><a href="#s4">下一段：提示詞結構 →</a></div>
 </section>
 
 <!-- ===================== 4 ===================== -->
 <section class="stage" id="s4" data-min="3" data-title="提示詞結構">
-  <p class="eyebrow">04 · 提示詞結構<span class="t">3 分</span><span class="t teach">20:00–23:00</span></p>
+  <p class="eyebrow">04 · 提示詞結構<span class="t">3 分</span><span class="t teach">18:00–21:00</span></p>
   <h2 class="claim">先叫 AI 報數字，你才知道它讀對沒。</h2>
   <p class="lead">主提示 B 分成七段。最重要的是<strong>「先檢查，再做報表」</strong>，以及<strong>貼資料的位置</strong>。</p>
   <div class="anat">
@@ -411,7 +411,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 
 <!-- ===================== 5 ===================== -->
 <section class="stage" id="s5" data-min="4" data-title="貼上＝最後一次去識別化檢查">
-  <p class="eyebrow">05 · 複製貼上<span class="t">4 分</span><span class="t teach">23:00–27:00</span></p>
+  <p class="eyebrow">05 · 複製貼上<span class="t">4 分</span><span class="t teach">21:00–25:00</span></p>
   <h2 class="claim">貼上之後、送出之前，親眼再看一次。</h2>
   <p class="lead">用「貼的」而不是上傳：貼進對話框的內容就在你眼前，<strong>送出前可以一列一列看到要交給 AI 的是什麼</strong>。這是最後一次去識別化檢查。</p>
   <ol class="steps">
@@ -453,38 +453,87 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 </section>
 
 <!-- ===================== 6 ===================== -->
-<section class="stage" id="s6" data-min="7" data-title="Gemini 做出單一 HTML 報表">
-  <p class="eyebrow">06 · 產生報表<span class="t">7 分</span><span class="t teach">27:00–34:00</span></p>
-  <h2 class="claim">先看檢查表，再拿 HTML。</h2>
+<section class="stage" id="s6" data-min="11" data-title="產生報表：兩輪比一比">
+  <p class="eyebrow">06 · 產生報表（兩輪）<span class="t">11 分</span><span class="t teach">25:00–36:00</span></p>
+  <h2 class="claim">同一份資料，兩種問法，比比看哪份更像 CC 要的。</h2>
+  <p class="lead">第一輪：你把要求一次寫清楚（<strong>主提示 B</strong>）。第二輪：你只說目的，<strong>叫 AI 先問你</strong>（<strong>提示詞 D</strong>）。最後兩份並排比。</p>
+
+  <h3>第一輪：貼完整的主提示 B</h3>
   <ol class="steps">
-    <li><p><strong>送出。</strong>Gemini 會先回一張檢查表，再給一大段程式碼。</p></li>
+    <li><p><strong>送出</strong>上一段貼好的內容（完整的<a href="#prompt-B">主提示 B</a>＋資料）。Gemini 會先回一張檢查表，再給一大段程式碼。</p></li>
     <li><p><strong>先看檢查表</strong>：總列數是不是 51？有沒有找到一組重複？</p>
       <p class="gentle">總列數不是 51：先看對話框裡貼的最後一列有沒有貼到，再追問「請逐列列出你讀到的患者編號」。</p></li>
     <li><p><strong>看成品</strong>（擇一）：</p>
       <ul class="plain">
         <li>如果出現預覽畫面（例如 Canvas），直接看。若畫面不同，請找程式碼區塊旁邊的「預覽」之類按鈕；找不到就用下一個方法。</li>
-        <li><strong>一定可行的方法</strong>：按程式碼區塊的「複製」→ 開記事本（Mac 用「文字編輯」，先選「格式 → 製作純文字格式」）→ 貼上 → 另存新檔 <code>給CC報表.html</code>，編碼選 <strong>UTF-8</strong> → 雙擊用瀏覽器開啟。</li>
+        <li><strong>一定可行的方法</strong>：按程式碼區塊的「複製」→ 開記事本（Mac 用「文字編輯」，先選「格式 → 製作純文字格式」）→ 貼上 → 另存新檔 <code>給CC報表_B.html</code>，編碼選 <strong>UTF-8</strong> → 雙擊用瀏覽器開啟。</li>
       </ul></li>
   </ol>
   <div class="shot"><b>截圖待補</b>Gemini 回答中的程式碼區塊與「複製」按鈕位置（介面可能因版本不同）</div>
   <div class="tip"><p>圖表需要網路載入圖表套件（Chart.js）。沒網路時圖不會出現 → 用下一段的 <a href="#s7">C-2 離線版</a>。開啟後中文變亂碼 → 重新另存，編碼選 UTF-8。</p></div>
+
+  <h3>第二輪：叫 AI 先問你（提示詞 D）</h3>
+  <ol class="steps">
+    <li><p>在 Gemini <strong>開一個新對話</strong>（不要接在第一輪後面，免得它沿用 B 的要求）。</p></li>
+    <li><p>複製下面的提示詞 D，貼到對話框。<strong>先不要送出。</strong></p></li>
+    <li><p>跟上一段一樣：從 <code>檢傷資料_去識別化.xlsx</code> 複製資料，貼在「【↓↓ 在這一行下面貼上 Excel 資料（含標題列）↓↓】」的<strong>下一行</strong>，對照<a href="#s5">送出前的自我檢查</a>看一遍，再送出。</p></li>
+    <li><p><strong>它問一題，你答一題。</strong>想想 CC 真正要的是什麼再回答。</p>
+      <p class="gentle">答不出來時，可以回：「我不確定，請給我兩個選項，並說明差別。」</p>
+      <p class="gentle">每次問的問題都可能不一樣。如果它一次把問題全列出來，就照順序一題一題回答。</p></li>
+    <li><p>成品一樣先看數字，再存成 <code>給CC報表_D.html</code>。</p></li>
+  </ol>
+  <div class="prompt" id="prompt-D"><div class="prompt-head"><span class="tag">D</span><span class="name">第二輪：叫 AI 先問你，再產生報表</span><button class="copy" type="button" aria-label="複製提示詞 D">複製</button></div><pre>我是 DMAT 隊伍負責向 CC（醫療指揮中心）回報的人。
+本提示最下方貼上的，是本隊已去識別化的檢傷資料（從 Excel 複製，第一列是標題；教學模擬資料，日期為虛構）。
+我想做一份給 CC 看的「單一 HTML 檔」報表。
+
+先不要做報表，也不要給程式碼。
+請先問我 3–5 個問題，弄清楚這份報表該怎麼做。
+一次只問一題，等我回答後再問下一題。
+等我全部回答完，再產生報表：先用表格列出你讀到的總列數與各檢傷分級人數，再把完整 HTML 放在「一個」程式碼區塊裡。
+
+【↓↓ 在這一行下面貼上 Excel 資料（含標題列）↓↓】
+
+【資料結束】</pre></div>
+
+  <h3>兩份並排比一比</h3>
+  <p>把 <code>給CC報表_B.html</code> 和 <code>給CC報表_D.html</code> 開在兩個瀏覽器視窗，左右並排（Windows 可按 <kbd>Win</kbd>+<kbd>←</kbd>、<kbd>Win</kbd>+<kbd>→</kbd>；手機就切換分頁）。</p>
+  <div class="check-head"><h3>想一想（想過就打勾）</h3><span class="count" data-count="c6r"></span></div>
+  <ul class="check" data-list="c6r">
+    <li><label><input type="checkbox"><span>哪一份比較符合 CC 的需要？為什麼？</span></label></li>
+    <li><label><input type="checkbox"><span>AI 問了什麼，是你原本沒想到的？</span></label></li>
+    <li><label><input type="checkbox"><span>哪些問題你答不出來？（答不出來的，通常就是回報前該先跟 CC 確認的事）</span></label></li>
+  </ul>
+  <div class="ask">不確定怎麼寫提示詞時，叫 AI 先問你。
+    <small>但它問的問題，答案要由你（和 CC）來給——AI 不知道 CC 要什麼。</small></div>
+
   <div class="check-head"><h3>檢查一下</h3><span class="count" data-count="c6"></span></div>
   <ul class="check" data-list="c6">
     <li><label><input type="checkbox"><span>看過 Gemini 的檢查表（總列數、重複、各類人數）</span></label></li>
-    <li><label><input type="checkbox"><span>報表已存成 <code>給CC報表.html</code>，瀏覽器打得開</span></label></li>
+    <li><label><input type="checkbox"><span>至少一份報表已存成 .html，瀏覽器打得開</span></label></li>
   </ul>
-  <div class="teach teach-note">同步示範一次。成功檢核：檢查表 51 列、SMA-100／SMA-048 重複、去重 50 人；瀏覽器開得起報表。<ul>
+
+  <div class="teach teach-note">時間分配（25:00–36:00）：第一輪 B 送出與存檔 4 分（25–29）→ 第二輪 D 5 分（29–34）→ 並排比較與反思 2 分（34–36）。同步示範第一輪。成功檢核：檢查表 51 列、SMA-100／SMA-048 重複、去重 50 人；瀏覽器開得起報表；每人說得出一個「AI 問了、我沒想到」的問題。<ul>
+    <li><strong>課堂選項（時間緊時）</strong>：分成兩組同時做——<strong>A 組用提示詞 B、B 組用提示詞 D</strong>，各做一份，最後找另一組的人兩兩並排比較。這樣每人只跑一輪，約省 4 分。</li>
     <li>需實測：主提示能否一次輸出完整 HTML、會不會被截斷（被截斷用 C-4）。</li>
     <li>需實測：免費版 Canvas／預覽能否顯示 HTML、能否下載。</li>
     <li>額度用完或帳號問題：兩人共用一台，或發範例報表讓學員直接練「核對數字」。</li></ul></div>
+  <div class="teach teach-note"><strong>提示詞 D：Gemini 每次問的問題都不一樣。</strong>下面是<strong>預期／未驗證</strong>的問題（全部需實測），以及建議學員怎麼答，供巡堂時提示用。<div class="tbl"><table>
+      <tr><th>可能的問題（預期／未驗證，需實測）</th><th>建議學員回答（預期／未驗證）</th></tr>
+      <tr><td>讀者是誰？誰會看這份報表？</td><td>CC 的指揮官與值班人員，在指揮中心用電腦看，要 30 秒內看懂；可能再轉給衛生局。</td></tr>
+      <tr><td>要看哪些指標？</td><td>傷患總數、紅黃綠黑人數、各醫院收到幾人（尤其紅色）、檢傷人數是否還在增加；現場死亡、自行離開、兒童／長者、非臺灣籍人數。</td></tr>
+      <tr><td>時間區間？要怎麼切？</td><td>全部資料（09:05～12:54），每 30 分鐘一格；最上方寫「資料截至最晚檢傷時間」。</td></tr>
+      <tr><td>圖表偏好？</td><td>長條圖為主，不用圓餅圖；顏色用紅黃綠黑；每張圖附數字表；CC 可能沒網路，不要用外部套件。</td></tr>
+      <tr><td>要不要列印？</td><td>要，A4 直式，黑白印也看得懂。</td></tr>
+    </table></div>
+    <p><strong>實測紀錄（佳玟課前填寫）</strong>：實測日期＿＿＿；Gemini 版本／模式＿＿＿；是否一次只問一題：＿＿＿；共問幾題：＿＿＿。<br>實際問題 1：＿＿＿<br>實際問題 2：＿＿＿<br>實際問題 3：＿＿＿<br>實際問題 4：＿＿＿<br>實際問題 5：＿＿＿<br>D 版成品是否完整、數字是否正確：＿＿＿</p></div>
   <div class="next"><a href="#s7">下一段：核對數字 →</a></div>
 </section>
 
 <!-- ===================== 7 ===================== -->
 <section class="stage" id="s7" data-min="6" data-title="核對數字與追問修正">
-  <p class="eyebrow">07 · 核對數字<span class="t">6 分</span><span class="t teach">34:00–40:00</span></p>
+  <p class="eyebrow">07 · 核對數字<span class="t">6 分</span><span class="t teach">36:00–42:00</span></p>
   <h2 class="claim">AI 算的數字，自己對過才算數。</h2>
-  <p class="lead">用 Excel 的「篩選」自己數一次，跟報表比。<strong>先自己數，再展開答案。</strong></p>
+  <p class="lead">用 Excel 的「篩選」自己數一次，跟報表比。<strong>先自己數，再展開答案。</strong>兩份報表都可以對；時間不夠，至少對你要交給 CC 的那一份。</p>
   <ol class="steps">
     <li><p>在去識別化檔點標題列 →「資料 → 篩選」。</p></li>
     <li><p>找出重複：有兩個編號除了「患者編號」以外，每一欄都一樣。</p></li>
@@ -539,18 +588,17 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 </section>
 
 <!-- ===================== 8 ===================== -->
-<section class="stage" id="s8" data-min="6" data-title="付費版示範（講師）">
-  <p class="eyebrow">08 · 付費版示範<span class="t">6 分</span><span class="t teach">40:00–46:00</span></p>
+<section class="stage" id="s8" data-min="4" data-title="付費版示範（講師）">
+  <p class="eyebrow">08 · 付費版示範<span class="t">4 分</span><span class="t teach">42:00–46:00</span></p>
   <h2 class="claim">付費會更穩更快，但三件事一樣要做。</h2>
   <p class="lead">這段看講師操作就好。講師會用<strong>同一份主提示、同一份去識別化資料</strong>（一樣用複製貼上）交給付費版，跟你剛剛的成品並排比。</p>
   <ul class="plain">
     <li>完整度：一次就給完整 HTML 嗎？</li>
     <li>正確度：數字對嗎？</li>
-    <li>多輪修改：例如加入依檢傷分級篩選的按鈕、每半小時累積人數。</li>
   </ul>
   <div class="ask">哪些功能值得付費？哪些用免費版就夠？
     <small>不管用哪一版：先去識別化、送出前親眼看、自己對數字——都不能省。</small></div>
-  <div class="teach teach-note">使用哪個付費工具與方案由講師決定；只示範課前實測過的功能，不要現場臨時試。建議先錄影當備案。</div>
+  <div class="teach teach-note">本段壓縮為 4 分：只做「同一份主提示 B、同一份資料，跟免費版並排比完整度與正確度」。多輪修改（篩選按鈕、每半小時累積人數）改放錄影，時間不夠就跳過。使用哪個付費工具與方案由講師決定；只示範課前實測過的功能，不要現場臨時試。建議先錄影當備案。</div>
   <div class="next"><a href="#s9">下一段：收尾 →</a></div>
 </section>
 
@@ -560,17 +608,17 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   <ul class="three">
     <li><span class="i">一</span><span>送出前先去識別化，貼上後親眼再看一次。</span></li>
     <li><span class="i">二</span><span>先叫 AI 報數字，自己對過。</span></li>
-    <li><span class="i">三</span><span>存成一個 HTML，就能傳給 CC。</span></li>
+    <li><span class="i">三</span><span>不確定怎麼問時，叫 AI 先問你。</span></li>
   </ul>
   <div class="warn"><b>真實事件資料</b>能不能交給 AI、用哪一個 AI，<strong>依你所屬單位的規定</strong>。免費版對話內容怎麼被保存和使用，請看 Google 當時的 Gemini 隱私說明。</div>
   <div class="check-head"><h3>離開前</h3><span class="count" data-count="c9"></span></div>
   <ul class="check" data-list="c9">
-    <li><label><input type="checkbox"><span>我的 <code>給CC報表.html</code> 已存好</span></label></li>
+    <li><label><input type="checkbox"><span>我的報表已存好（<code>給CC報表_B.html</code>、<code>給CC報表_D.html</code>，至少一份）</span></label></li>
     <li><label><input type="checkbox"><span>提示詞範本已下載（見下方「下載」）</span></label></li>
     <li><label><input type="checkbox"><span>含姓名的原檔只留在本機，沒有貼給 AI</span></label></li>
   </ul>
   <p class="gentle">資料量大時，可以改成上傳 .csv 或從雲端硬碟帶入（見附錄），但那樣就看不到實際送出的內容，要更小心。</p>
-  <div class="teach teach-note">三句帶走；一句帶過進階選項；提醒真實事件資料依所屬單位規定。成功檢核：每人帶走一份自己做的 HTML。</div>
+  <div class="teach teach-note">三句帶走（第三句呼應 06 的兩輪比較；「存成一個 HTML 就能傳給 CC」已在 06 做到，不再單獨列）；一句帶過進階選項；提醒真實事件資料依所屬單位規定。成功檢核：每人帶走一份自己做的 HTML。</div>
 </section>
 
 <!-- ===================== downloads ===================== -->
@@ -584,7 +632,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   <ul class="dl">
     <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-practice-with-time.xlsx">triage-practice-with-time.xlsx</a><span>練習原檔（含虛構姓名，<strong>不可直接貼給 AI</strong>）</span></li>
     <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a><span>去識別化解答＋「說明」工作表（練習後對答案）</span></li>
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/prompt-templates.md">prompt-templates.md</a><span>提示詞範本（A、A-2、B、C-1～C-4、進階上傳說明）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/prompt-templates.md">prompt-templates.md</a><span>提示詞範本（A、A-2、B、D、C-1～C-4、進階上傳說明）</span></li>
     <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/course-flow-50min.md">course-flow-50min.md</a><span>50 分鐘課程流程（含備案）</span></li>
     <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/sample-report.html">sample-report.html</a><span>範例報表（用主提示 B 做出的成品）</span></li>
   </ul>
@@ -634,6 +682,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
       <li><label><input type="checkbox"><span>實測：Enter 是否直接送出；換行是否用 Shift+Enter</span></label></li>
       <li><label><input type="checkbox"><span>實測：檢傷時間貼上後顯示為 2026/11/01 09:06，而不是小數</span></label></li>
       <li><label><input type="checkbox"><span>實測：主提示能否一次輸出完整 HTML</span></label></li>
+      <li><label><input type="checkbox"><span>實測：提示詞 D 會問哪些問題、是否一次一題；記到 06 段的講師實測紀錄</span></label></li>
       <li><label><input type="checkbox"><span>實測：Canvas／預覽能否顯示 HTML、能否下載</span></label></li>
       <li><label><input type="checkbox"><span>實測：免費版能否上傳 .csv、「+」選單能否帶入雲端硬碟</span></label></li>
       <li><label><input type="checkbox"><span>查閱 Google 當時的 Gemini 隱私說明，準備一句話告訴學員</span></label></li>
