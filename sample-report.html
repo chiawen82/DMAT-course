@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMAT 檢傷回報（給 CC）｜教學模擬資料</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{--ink:#1f2328;--muted:#5b636e;--line:#d8dde3;--bg:#f6f7f9;--card:#fff;
+        --red:#c62828;--yellow:#e0a800;--green:#2e7d32;--black:#262626;}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;color:var(--ink);background:var(--bg);line-height:1.5}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  .banner{background:#fff3cd;border:1px solid #e6c65c;padding:8px 12px;border-radius:6px;font-weight:700}
+  header h1{margin:12px 0 4px;font-size:1.5rem}
+  .meta{color:var(--muted);font-size:.92rem}
+  .grid{display:grid;gap:12px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(118px,1fr));margin:14px 0}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+  .tile .lab{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .tile .num{font-size:1.9rem;font-weight:700}
+  .tile .sub{font-size:.8rem;color:var(--muted)}
+  .sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid #0003}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px}
+  .card h2{font-size:1.1rem;margin:0 0 4px}
+  .card .note{color:var(--muted);font-size:.85rem;margin:0 0 8px}
+  .two{grid-template-columns:1fr 1fr}
+  @media(max-width:800px){.two{grid-template-columns:1fr}}
+  .chartbox{position:relative;height:300px}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th,td{border:1px solid var(--line);padding:4px 6px;text-align:center}
+  th{background:#eef1f4}
+  td.l,th.l{text-align:left}
+  details{margin-top:8px} summary{cursor:pointer;color:#0b5cad}
+  ul.key{margin:6px 0 0;padding-left:20px}
+  .warn{color:#8a5300}
+  footer{color:var(--muted);font-size:.8rem;margin:16px 0}
+  #nochart{display:none}
+  @media print{body{background:#fff}.card,.tile{break-inside:avoid}details{display:block}details>*{display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="banner">⚠ 教學模擬資料：事件、日期（2026/11/01）與檢傷時間皆為虛構，不是真實傷患資料。</div>
+  <header>
+    <h1>（隊名）DMAT 檢傷與後送回報 — 給 CC</h1>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="card" id="nochart"><b class="warn">圖表沒有載入</b>（本報表用網路載入 Chart.js）。下方各區的「數字表」仍可正常閱讀。</div>
+
+  <section class="grid kpis" id="kpis"></section>
+
+  <div class="card">
+    <h2>給 CC 的重點</h2>
+    <ul class="key" id="keypoints"></ul>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h2>檢傷分級分布</h2>
+      <p class="note">單位：人（已排除重複 1 筆）</p>
+      <div class="chartbox"><canvas id="cTriage" role="img" aria-label="檢傷分級人數長條圖"></canvas></div>
+      <details><summary>數字表</summary><div id="tTriage"></div></details>
+    </div>
+    <div class="card">
+      <h2>後送醫院分布（依檢傷分級）</h2>
+      <p class="note">單位：人；「無」＝現場死亡或自行離開，未後送</p>
+      <div class="chartbox"><canvas id="cHosp" role="img" aria-label="各後送醫院人數堆疊長條圖"></canvas></div>
+      <details><summary>數字表</summary><div id="tHosp"></div></details>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>檢傷時間趨勢（每 30 分鐘）</h2>
+    <p class="note">單位：人；橫軸為檢傷時間區間起點（例如 09:00 ＝ 09:00–09:29）</p>
+    <div class="chartbox"><canvas id="cTime" role="img" aria-label="每 30 分鐘檢傷人數堆疊長條圖"></canvas></div>
+    <details><summary>數字表</summary><div id="tTime"></div></details>
+  </div>
+
+  <div class="card">
+    <h2>資料品質說明</h2>
+    <ul class="key" id="dq"></ul>
+    <details><summary>去識別化明細（<span id="nrows"></span> 筆，含重複列標記）</summary><div id="tDetail"></div></details>
+  </div>
+
+  <footer>
+    資料來源：檢傷資料.xlsx（教學擬真資料）＋本課程虛構之檢傷時間；已去識別化：刪除姓名、精確年齡、居住城市，國籍泛化為臺灣／非臺灣。
+    本檔為單一 HTML，可直接存檔、以瀏覽器開啟；圖表需網路載入 Chart.js。
+  </footer>
+</div>
+
+<script>
+// ===== 內嵌資料（去識別化，共 51 列，含 1 筆重複）=====
+const RAW = [{"患者編號": "SMA-001", "檢傷": "黑：期待治療", "後送狀態": "現場死亡", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:06"}, {"患者編號": "SMA-008", "檢傷": "黑：期待治療", "後送狀態": "現場死亡", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "5–17", "檢傷時間": "2026/11/01 09:09"}, {"患者編號": "SMA-016", "檢傷": "黑：期待治療", "後送狀態": "現場死亡", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:11"}, {"患者編號": "SMA-029", "檢傷": "黑：期待治療", "後送狀態": "現場死亡", "後送醫院": "無", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:05"}, {"患者編號": "SMA-002", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:23"}, {"患者編號": "SMA-005", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "65+", "檢傷時間": "2026/11/01 09:21"}, {"患者編號": "SMA-009", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:40"}, {"患者編號": "SMA-011", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "5–17", "檢傷時間": "2026/11/01 09:07"}, {"患者編號": "SMA-015", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:27"}, {"患者編號": "SMA-020", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "65+", "檢傷時間": "2026/11/01 09:35"}, {"患者編號": "SMA-023", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:09"}, {"患者編號": "SMA-027", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:01"}, {"患者編號": "SMA-031", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:03"}, {"患者編號": "SMA-035", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:08"}, {"患者編號": "SMA-039", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "5–17", "檢傷時間": "2026/11/01 09:13"}, {"患者編號": "SMA-043", "檢傷": "紅：重傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:17"}, {"患者編號": "SMA-003", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:29"}, {"患者編號": "SMA-006", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:25"}, {"患者編號": "SMA-010", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:52"}, {"患者編號": "SMA-012", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "男", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:03"}, {"患者編號": "SMA-014", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:46"}, {"患者編號": "SMA-017", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:23"}, {"患者編號": "SMA-019", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:39"}, {"患者編號": "SMA-021", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "5–17", "檢傷時間": "2026/11/01 10:12"}, {"患者編號": "SMA-024", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:33"}, {"患者編號": "SMA-026", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "女", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:01"}, {"患者編號": "SMA-028", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "65+", "檢傷時間": "2026/11/01 11:16"}, {"患者編號": "SMA-032", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:31"}, {"患者編號": "SMA-033", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 12:11"}, {"患者編號": "SMA-036", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:18"}, {"患者編號": "SMA-037", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 12:29"}, {"患者編號": "SMA-040", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:05"}, {"患者編號": "SMA-042", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:14"}, {"患者編號": "SMA-044", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:19"}, {"患者編號": "SMA-046", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "男", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:49"}, {"患者編號": "SMA-047", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "國軍花蓮總醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:18"}, {"患者編號": "SMA-049", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "花蓮慈濟醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "5–17", "檢傷時間": "2026/11/01 12:01"}, {"患者編號": "SMA-050", "檢傷": "黃：中傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "65+", "檢傷時間": "2026/11/01 10:33"}, {"患者編號": "SMA-004", "檢傷": "綠：輕傷", "後送狀態": "自行離開", "後送醫院": "無", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:36"}, {"患者編號": "SMA-007", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 12:41"}, {"患者編號": "SMA-013", "檢傷": "綠：輕傷", "後送狀態": "自行離開", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 12:54"}, {"患者編號": "SMA-018", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "女", "國籍類別": "非臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:45"}, {"患者編號": "SMA-022", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:58"}, {"患者編號": "SMA-025", "檢傷": "綠：輕傷", "後送狀態": "自行離開", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:54"}, {"患者編號": "SMA-030", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 09:42"}, {"患者編號": "SMA-034", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:48"}, {"患者編號": "SMA-038", "檢傷": "綠：輕傷", "後送狀態": "自行離開", "後送醫院": "無", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 11:46"}, {"患者編號": "SMA-041", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 12:18"}, {"患者編號": "SMA-045", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "衛生福利部花蓮醫院", "性別": "女", "國籍類別": "臺灣", "Age Band": "65+", "檢傷時間": "2026/11/01 11:58"}, {"患者編號": "SMA-048", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:31"}, {"患者編號": "SMA-100", "檢傷": "綠：輕傷", "後送狀態": "後送醫院", "後送醫院": "門諾醫院", "性別": "男", "國籍類別": "臺灣", "Age Band": "18–64", "檢傷時間": "2026/11/01 10:31"}];
+
+const TRIAGE = ['紅：重傷','黃：中傷','綠：輕傷','黑：期待治療'];
+const TCOLOR = {'紅：重傷':'#c62828','黃：中傷':'#e0a800','綠：輕傷':'#2e7d32','黑：期待治療':'#262626'};
+
+// --- 找重複：除「患者編號」外所有欄位相同，視為重複，保留第一筆 ---
+const keyOf = r => Object.keys(r).filter(k=>k!=='患者編號').map(k=>r[k]).join('|');
+const seen = {}, dups = [];
+const DATA = [];
+RAW.forEach(r=>{ const k=keyOf(r); if(seen[k]){dups.push([r['患者編號'],seen[k]]);} else {seen[k]=r['患者編號'];DATA.push(r);} });
+
+const count = (arr, f) => arr.reduce((m,r)=>{const k=f(r); m[k]=(m[k]||0)+1; return m;},{});
+const N = DATA.length;
+const byT = count(DATA, r=>r['檢傷']);
+const byS = count(DATA, r=>r['後送狀態']);
+const byNat = count(DATA, r=>r['國籍類別']);
+const byAge = count(DATA, r=>r['Age Band']);
+const times = DATA.map(r=>r['檢傷時間']).sort();
+const tFirst = times[0], tLast = times[times.length-1];
+
+// 30 分鐘區間
+const binOf = t => { const [h,m]=t.slice(11).split(':').map(Number); return String(h).padStart(2,'0')+':'+(m<30?'00':'30'); };
+const bins = [...new Set(DATA.map(r=>binOf(r['檢傷時間'])))].sort();
+const timeTab = bins.map(b=>{ const o={區間:b}; TRIAGE.forEach(t=>o[t]=DATA.filter(r=>binOf(r['檢傷時間'])===b && r['檢傷']===t).length); o.合計=TRIAGE.reduce((s,t)=>s+o[t],0); return o; });
+
+// 後送醫院 × 檢傷
+const hosps = Object.entries(count(DATA,r=>r['後送醫院'])).sort((a,b)=> (a[0]==='無')-(b[0]==='無') || b[1]-a[1]).map(x=>x[0]);
+const hospTab = hosps.map(h=>{ const o={醫院:h}; TRIAGE.forEach(t=>o[t]=DATA.filter(r=>r['後送醫院']===h && r['檢傷']===t).length); o.合計=TRIAGE.reduce((s,t)=>s+o[t],0); return o; });
+
+// --- 標頭 ---
+document.getElementById('meta').textContent =
+  `資料時間：${tFirst} – ${tLast}（最後一筆檢傷）｜傷患 ${N} 人（原始 ${RAW.length} 筆，排除重複 ${dups.length} 筆）`;
+
+// --- KPI ---
+const sw = c => `<span class="sw" style="background:${c}"></span>`;
+const tiles = [
+  ['傷患總數', N, '已去重'],
+  [sw(TCOLOR['紅：重傷'])+'紅（重傷）', byT['紅：重傷']||0, pct(byT['紅：重傷'])],
+  [sw(TCOLOR['黃：中傷'])+'黃（中傷）', byT['黃：中傷']||0, pct(byT['黃：中傷'])],
+  [sw(TCOLOR['綠：輕傷'])+'綠（輕傷）', byT['綠：輕傷']||0, pct(byT['綠：輕傷'])],
+  [sw(TCOLOR['黑：期待治療'])+'黑（期待治療）', byT['黑：期待治療']||0, pct(byT['黑：期待治療'])],
+  ['已後送醫院', byS['後送醫院']||0, `現場死亡 ${byS['現場死亡']||0}／自行離開 ${byS['自行離開']||0}`],
+  ['非臺灣籍', byNat['非臺灣']||0, '可能需通譯／聯繫'],
+  ['兒童／長者', `${byAge['5–17']||0}／${byAge['65+']||0}`, '5–17 歲／65 歲以上'],
+];
+function pct(n){ return n? `${(n/N*100).toFixed(0)}%` : '0%'; }
+document.getElementById('kpis').innerHTML = tiles.map(t=>`<div class="tile"><div class="lab">${t[0]}</div><div class="num">${t[1]}</div><div class="sub">${t[2]}</div></div>`).join('');
+
+// --- 重點（由資料計算）---
+const peak = timeTab.reduce((a,b)=> b.合計>a.合計?b:a);
+const redByHosp = hospTab.filter(h=>h['紅：重傷']>0).sort((a,b)=>b['紅：重傷']-a['紅：重傷']);
+const redFirstHour = DATA.filter(r=>r['檢傷']==='紅：重傷' && r['檢傷時間'].slice(11,13)==='09').length;
+const lastBin = timeTab[timeTab.length-1];
+document.getElementById('keypoints').innerHTML = [
+  `本隊共檢傷 <b>${N}</b> 人：紅 ${byT['紅：重傷']}、黃 ${byT['黃：中傷']}、綠 ${byT['綠：輕傷']}、黑 ${byT['黑：期待治療']}。`,
+  `已後送醫院 <b>${byS['後送醫院']}</b> 人；現場死亡 ${byS['現場死亡']} 人；自行離開 ${byS['自行離開']} 人。`,
+  `紅色傷患後送去向：${redByHosp.map(h=>`${h.醫院} ${h['紅：重傷']} 人`).join('、')}。`,
+  `檢傷高峰在 <b>${peak.區間}</b> 時段（${peak.合計} 人）；紅色傷患 ${byT['紅：重傷']} 人中有 ${redFirstHour} 人在 09 時內檢傷，之後人數遞減，最後一個時段（${lastBin.區間}）${lastBin.合計} 人。`,
+  `非臺灣籍 ${byNat['非臺灣']||0} 人、兒童（5–17 歲）${byAge['5–17']||0} 人、長者（65 歲以上）${byAge['65+']||0} 人。`,
+].map(s=>`<li>${s}</li>`).join('');
+
+// --- 資料品質 ---
+document.getElementById('dq').innerHTML = [
+  `原始 ${RAW.length} 筆；${dups.map(d=>`${d[0]} 與 ${d[1]} 除編號外內容完全相同，視為重複，以 ${d[1]} 計`).join('；') || '未發現重複'}。`,
+  `各欄空白數：${Object.keys(RAW[0]).map(k=>`${k} ${RAW.filter(r=>r[k]===''||r[k]==null).length}`).join('、')}。`,
+  `「後送醫院＝無」共 ${DATA.filter(r=>r['後送醫院']==='無').length} 人，皆為現場死亡或自行離開。`,
+].map(s=>`<li>${s}</li>`).join('');
+
+// --- 表格 ---
+function table(rows, cols){
+  return `<table><thead><tr>${cols.map((c,i)=>`<th class="${i?'':'l'}">${c}</th>`).join('')}</tr></thead><tbody>`+
+    rows.map(r=>`<tr>${cols.map((c,i)=>`<td class="${i?'':'l'}">${r[c]}</td>`).join('')}</tr>`).join('')+`</tbody></table>`;
+}
+const totalRow = (tab, label, key) => { const o={[key]:'<b>合計</b>'}; [...TRIAGE,'合計'].forEach(t=>o[t]='<b>'+tab.reduce((s,r)=>s+r[t],0)+'</b>'); return o; };
+document.getElementById('tTriage').innerHTML = table([...TRIAGE.map(t=>({檢傷:t,人數:byT[t]||0,比例:pct(byT[t])})),{檢傷:'<b>合計</b>',人數:'<b>'+N+'</b>',比例:'100%'}],['檢傷','人數','比例']);
+document.getElementById('tHosp').innerHTML = table([...hospTab, totalRow(hospTab,'合計','醫院')],['醫院',...TRIAGE,'合計']);
+document.getElementById('tTime').innerHTML = table([...timeTab, totalRow(timeTab,'合計','區間')],['區間',...TRIAGE,'合計']);
+const dupIds = new Set(dups.map(d=>d[0]));
+document.getElementById('nrows').textContent = RAW.length;
+document.getElementById('tDetail').innerHTML = table(RAW.map(r=>({...r, 備註: dupIds.has(r['患者編號'])?'<span class="warn">重複，未計入</span>':''})), [...Object.keys(RAW[0]),'備註']);
+
+// --- 圖表 ---
+if (typeof Chart === 'undefined') {
+  document.getElementById('nochart').style.display='block';
+  document.querySelectorAll('details').forEach(d=>d.open=true);
+} else {
+  Chart.defaults.font.family = '"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif';
+  Chart.defaults.color = '#3a4048';
+  const grid = {color:'#e9ecef'};
+  const base = {responsive:true, maintainAspectRatio:false, plugins:{tooltip:{mode:'index',intersect:false}}};
+  new Chart(document.getElementById('cTriage'), {type:'bar',
+    data:{labels:TRIAGE, datasets:[{label:'人數', data:TRIAGE.map(t=>byT[t]||0), backgroundColor:TRIAGE.map(t=>TCOLOR[t]), borderRadius:4, maxBarThickness:60}]},
+    options:{...base, plugins:{...base.plugins, legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{precision:0}, grid, title:{display:true,text:'人'}}, x:{grid:{display:false}}}}});
+  const stacked = (labels, tab) => ({labels, datasets: TRIAGE.map(t=>({label:t, data:tab.map(r=>r[t]), backgroundColor:TCOLOR[t], borderColor:'#fff', borderWidth:1}))});
+  new Chart(document.getElementById('cHosp'), {type:'bar', data:stacked(hosps, hospTab),
+    options:{...base, indexAxis:'y', scales:{x:{stacked:true, beginAtZero:true, ticks:{precision:0}, grid, title:{display:true,text:'人'}}, y:{stacked:true, grid:{display:false}}}}});
+  new Chart(document.getElementById('cTime'), {type:'bar', data:stacked(bins, timeTab),
+    options:{...base, scales:{x:{stacked:true, grid:{display:false}, title:{display:true,text:'檢傷時間（30 分鐘區間）'}}, y:{stacked:true, beginAtZero:true, ticks:{precision:0}, grid, title:{display:true,text:'人'}}}}});
+}
+</script>
+</body>
+</html>
