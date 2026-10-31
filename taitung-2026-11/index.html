@@ -224,7 +224,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 <div class="hero" id="top">
   <p class="kicker">台東進階 DMAT 課程 · 2026/11/4–5 · 約 50 分鐘</p>
   <h1>用 Excel 整理資料，<br>交給 AI 做圖表</h1>
-  <p class="lead">今天不學 Power BI。你會把一份檢傷 Excel <strong>先去識別化</strong>，再交給 Gemini，做出一個<strong>給 CC 看的單一 HTML 報表</strong>——存成一個檔就能傳出去。</p>
+  <p class="lead">今天不學 Power BI。你會把一份檢傷 Excel <strong>先去識別化</strong>，再交給 Gemini，做出一個<strong>給 CC（Coordination Cell，協調中心）看的單一 HTML 報表</strong>——存成一個檔就能傳出去。</p>
   <div class="rule"></div>
   <div class="facts">
     <div class="card"><div class="n">50</div><div class="l">分鐘</div></div>
@@ -255,7 +255,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   <h2 class="claim">同一個畫面上，左邊 Excel、右邊 Gemini。</h2>
   <ol class="steps">
     <li><p><strong>下載練習檔</strong></p>
-      <p><a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-practice-with-time.xlsx">下載 triage-practice-with-time.xlsx</a></p>
+      <p><a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-practice-with-time.xlsx">下載 triage-practice-with-time.xlsx</a></p>
       <p class="gentle">下載不了？請改從 <a href="https://drive.google.com/drive/folders/1R9Wv7EoanA5FLBEncFCm26IZvZS2uIBG" target="_blank" rel="noopener">課程雲端資料夾</a> 下載，或向助教拿 USB。</p></li>
     <li><p><strong>用 Excel 開啟</strong>。有 11 欄、51 筆傷患（含標題共 52 列），其中有「患者姓名」。</p></li>
     <li><p><strong>開 Gemini 免費版</strong>：<a href="https://gemini.google.com" target="_blank" rel="noopener">gemini.google.com ↗</a>，用自己的 Google 帳號登入，開一個新對話。</p>
@@ -283,7 +283,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   </div>
   <h3>問 Gemini：哪些欄位要處理？（只貼欄位名稱）</h3>
   <p>把下面整段提示詞複製到 Gemini 送出。這段<strong>只有欄位名稱，沒有任何一筆資料</strong>，可以放心送。</p>
-  <div class="prompt" id="prompt-A"><div class="prompt-head"><span class="tag">A</span><span class="name">去識別化檢查（只貼欄位名稱，不貼資料）</span><button class="copy" type="button" aria-label="複製提示詞 A">複製</button></div><pre>我是 DMAT 隊員，要把一份傷患檢傷 Excel 的內容交給 AI 做統計報表，再交給 CC（指揮協調）。
+  <div class="prompt" id="prompt-A"><div class="prompt-head"><span class="tag">A</span><span class="name">去識別化檢查（只貼欄位名稱，不貼資料）</span><button class="copy" type="button" aria-label="複製提示詞 A">複製</button></div><pre>我是 DMAT 隊員，要把一份傷患檢傷 Excel 的內容交給 AI 做統計報表，再交給 CC（Coordination Cell，協調中心）。
 在把資料貼給 AI 之前，我要先去識別化。請「不要」要求我提供資料內容。
 
 欄位名稱如下（每列一位傷患）：
@@ -337,7 +337,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
     </table></div>
     <p>標題寫「非臺灣」而不是「外籍」：只是把「不是臺灣」的歸成一類，不額外判斷身分。</p>
     <p class="gentle">「患者編號不是也能連回個人嗎？」是的，這叫假名化。所以含姓名的原檔不貼、不上傳，只留本機。要更嚴格可以改用新流水號，另存對照表。</p>
-    <p>完整解答檔：<a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a>（「說明」工作表有逐欄理由）。</p>
+    <p>完整解答檔：<a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a>（「說明」工作表有逐欄理由）。</p>
   </div></details>
   <div class="teach teach-note">巡堂；提醒「要刪除欄，不要只是隱藏欄」。16–18 分投影解答檔「說明」工作表：為什麼保留患者編號（對帳、找重複）、為什麼寫「非臺灣」而非「外籍」。<br>時間落後時：直接發解答檔，跳過動手，但<strong>下一段之後的貼上檢查不要省</strong>。</div>
   <div class="next"><a href="#s4">下一段：提示詞結構 →</a></div>
@@ -372,7 +372,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
 - Age Band：5–17、18–64、65+
 - 檢傷時間：格式 YYYY/MM/DD HH:MM
 
-【讀者與目的】報表給 CC（指揮協調）看，用來掌握本隊傷患量、嚴重度、
+【讀者與目的】報表給 CC（Coordination Cell，協調中心）看，用來掌握本隊傷患量、嚴重度、
 各醫院收到多少傷患，以及檢傷人數是否還在增加。
 
 【先檢查，再做報表】在給程式碼之前，先用表格列出：
@@ -482,7 +482,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
       <p class="gentle">每次問的問題都可能不一樣。如果它一次把問題全列出來，就照順序一題一題回答。</p></li>
     <li><p>成品一樣先看數字，再存成 <code>給CC報表_D.html</code>。</p></li>
   </ol>
-  <div class="prompt" id="prompt-D"><div class="prompt-head"><span class="tag">D</span><span class="name">第二輪：叫 AI 先問你，再產生報表</span><button class="copy" type="button" aria-label="複製提示詞 D">複製</button></div><pre>我是 DMAT 隊伍負責向 CC（醫療指揮中心）回報的人。
+  <div class="prompt" id="prompt-D"><div class="prompt-head"><span class="tag">D</span><span class="name">第二輪：叫 AI 先問你，再產生報表</span><button class="copy" type="button" aria-label="複製提示詞 D">複製</button></div><pre>我是 DMAT 隊伍負責向 CC（Coordination Cell，協調中心）回報的人。
 本提示最下方貼上的，是本隊已去識別化的檢傷資料（從 Excel 複製，第一列是標題；教學模擬資料，日期為虛構）。
 我想做一份給 CC 看的「單一 HTML 檔」報表。
 
@@ -519,7 +519,7 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
     <li>額度用完或帳號問題：兩人共用一台，或發範例報表讓學員直接練「核對數字」。</li></ul></div>
   <div class="teach teach-note"><strong>提示詞 D：Gemini 每次問的問題都不一樣。</strong>下面是<strong>預期／未驗證</strong>的問題（全部需實測），以及建議學員怎麼答，供巡堂時提示用。<div class="tbl"><table>
       <tr><th>可能的問題（預期／未驗證，需實測）</th><th>建議學員回答（預期／未驗證）</th></tr>
-      <tr><td>讀者是誰？誰會看這份報表？</td><td>CC 的指揮官與值班人員，在指揮中心用電腦看，要 30 秒內看懂；可能再轉給衛生局。</td></tr>
+      <tr><td>讀者是誰？誰會看這份報表？</td><td>CC 的協調人員與值班人員，在協調中心用電腦看，要 30 秒內看懂；可能再轉給衛生局。</td></tr>
       <tr><td>要看哪些指標？</td><td>傷患總數、紅黃綠黑人數、各醫院收到幾人（尤其紅色）、檢傷人數是否還在增加；現場死亡、自行離開、兒童／長者、非臺灣籍人數。</td></tr>
       <tr><td>時間區間？要怎麼切？</td><td>全部資料（09:05～12:54），每 30 分鐘一格；最上方寫「資料截至最晚檢傷時間」。</td></tr>
       <tr><td>圖表偏好？</td><td>長條圖為主，不用圓餅圖；顏色用紅黃綠黑；每張圖附數字表；CC 可能沒網路，不要用外部套件。</td></tr>
@@ -626,15 +626,15 @@ footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; c
   <p class="eyebrow">資源包</p>
   <h2 class="claim">下載</h2>
   <p>
-    <a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/tag/taitung-2026-11-v1" target="_blank" rel="noopener">所有檔案（Release 頁面）↗</a>
+    <a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/tag/taitung-2026-11-v2" target="_blank" rel="noopener">所有檔案（Release 頁面）↗</a>
     <a class="btn ghost" href="https://drive.google.com/drive/folders/1R9Wv7EoanA5FLBEncFCm26IZvZS2uIBG" target="_blank" rel="noopener">課程雲端資料夾（備用）↗</a>
   </p>
   <ul class="dl">
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-practice-with-time.xlsx">triage-practice-with-time.xlsx</a><span>練習原檔（含虛構姓名，<strong>不可直接貼給 AI</strong>）</span></li>
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a><span>去識別化解答＋「說明」工作表（練習後對答案）</span></li>
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/prompt-templates.md">prompt-templates.md</a><span>提示詞範本（A、A-2、B、D、C-1～C-4、進階上傳說明）</span></li>
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/course-flow-50min.md">course-flow-50min.md</a><span>50 分鐘課程流程（含備案）</span></li>
-    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/sample-report.html">sample-report.html</a><span>範例報表（用主提示 B 做出的成品）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-practice-with-time.xlsx">triage-practice-with-time.xlsx</a><span>練習原檔（含虛構姓名，<strong>不可直接貼給 AI</strong>）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a><span>去識別化解答＋「說明」工作表（練習後對答案）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/prompt-templates.md">prompt-templates.md</a><span>提示詞範本（A、A-2、B、D、C-1～C-4、進階上傳說明）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/course-flow-50min.md">course-flow-50min.md</a><span>50 分鐘課程流程（含備案）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/sample-report.html">sample-report.html</a><span>範例報表（用主提示 B 做出的成品）</span></li>
   </ul>
   <p class="gentle">.md 檔是純文字，用記事本或任何文字編輯器都能打開。</p>
 </section>
