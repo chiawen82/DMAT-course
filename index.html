@@ -1,4 +1,47 @@
 <!doctype html>
-<html lang="zh-Hant-TW"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DMAT 課程</title></head>
-<body style="font-family:system-ui,'Noto Sans TC',sans-serif;max-width:720px;margin:4rem auto;padding:0 1rem;line-height:1.7">
-<h1>DMAT 課程</h1><p>課程網頁建置中。</p></body></html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DMAT 課程</title>
+<style>
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --ink:#131D1C; --muted:#586a67; --line:#C6D2D0;
+  --teal:#0E6E66; --tint-teal:#DCEBE9;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
+  --disp:"Barlow Condensed","Arial Narrow","Noto Sans TC",sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0D1514; --surface:#16211F; --ink:#E8EEEC; --muted:#98A8A5; --line:#2C3B39; --teal:#43B8AB; --tint-teal:#12312E}
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.75}
+main{max-width:760px; margin:0 auto; padding:56px clamp(16px,4vw,28px)}
+.eyebrow{font-family:var(--disp); letter-spacing:.2em; color:var(--teal); font-weight:600; margin:0 0 6px}
+h1{font-size:clamp(30px,5vw,44px); font-weight:900; line-height:1.2; margin:0}
+.rule{height:3px; background:var(--teal); width:min(100%,160px); border-radius:2px; margin:18px 0 26px}
+a.course{display:block; text-decoration:none; color:var(--ink); background:var(--surface); border:1px solid var(--line);
+  border-top:3px solid var(--teal); border-radius:7px; padding:18px 20px; margin:0 0 14px}
+a.course:hover,a.course:focus-visible{border-color:var(--teal); background:var(--tint-teal); outline:none}
+a.course .when{font-size:14px; color:var(--muted)}
+a.course h2{font-size:22px; margin:4px 0 6px; line-height:1.35}
+a.course p{margin:0; color:var(--muted); font-size:15.5px}
+a.course .go{display:inline-block; margin-top:10px; color:var(--teal); font-weight:700}
+footer{color:var(--muted); font-size:14px; margin-top:32px}
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">DMAT COURSE</p>
+  <h1>DMAT 課程</h1>
+  <div class="rule"></div>
+  <a class="course" href="./taitung-2026-11/">
+    <span class="when">台東進階 DMAT · 2026/11/4–5 · 約 50 分鐘</span>
+    <h2>用 Excel 整理資料，交給 AI 做圖表</h2>
+    <p>檢傷 Excel 先去識別化，再交給 Gemini 做出給 CC 的單一 HTML 報表。跟著步驟做，提示詞一鍵複製。</p>
+    <span class="go">進入課程 →</span>
+  </a>
+  <footer>課程中所有資料皆為教學模擬資料。</footer>
+</main>
+</body>
+</html>

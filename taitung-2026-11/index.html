@@ -1,0 +1,774 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>用 Excel 整理資料，交給 AI 做圖表｜台東進階 DMAT 2026/11</title>
+<style>
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --surface2:#E3E9E8;
+  --ink:#131D1C; --muted:#586a67; --line:#C6D2D0; --rule:#8DA09D;
+  --teal:#0E6E66; --tint-teal:#DCEBE9;
+  --signal:#B06A05; --tint-signal:#F7E7CC;
+  --alert:#A8271F; --tint-alert:#F6DEDB;
+  --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
+  --disp:"Barlow Condensed","Arial Narrow","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --mono:ui-monospace,"SFMono-Regular",Consolas,"Noto Sans Mono CJK TC","Noto Sans TC",monospace;
+  --r:7px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1514; --surface:#16211F; --surface2:#1E2C29;
+    --ink:#E8EEEC; --muted:#98A8A5; --line:#2C3B39; --rule:#6E827F;
+    --teal:#43B8AB; --tint-teal:#12312E;
+    --signal:#EDA53C; --tint-signal:#35270F;
+    --alert:#E4685C; --tint-alert:#3A1A17;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:72px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+  font-size:17px; line-height:1.75; -webkit-font-smoothing:antialiased}
+a{color:var(--teal); text-underline-offset:3px}
+a:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible{outline:2px solid var(--signal); outline-offset:2px}
+strong{font-weight:700}
+code,kbd{font-family:var(--mono); font-size:.9em; background:var(--surface2); border-radius:4px; padding:1px 5px}
+kbd{border:1px solid var(--line); border-bottom-width:2px}
+
+/* ---------- rail ---------- */
+.rail{position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:12px;
+  padding:10px clamp(14px,3vw,32px);
+  background:color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.rail .brand{font-family:var(--disp); font-weight:700; letter-spacing:.08em; color:var(--teal); white-space:nowrap; font-size:15px}
+.ticks{display:flex; gap:4px; flex:1; min-width:60px}
+.tick{flex:1; height:6px; border-radius:3px; background:var(--line); display:block}
+.tick.done{background:var(--rule)}
+.tick.cur{background:var(--teal)}
+.meta{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap}
+.railbtn{font-family:var(--sans); font-size:14px; background:var(--surface); color:var(--ink);
+  border:1px solid var(--line); border-radius:6px; padding:6px 10px; min-height:36px; cursor:pointer; white-space:nowrap}
+.railbtn:hover{border-color:var(--teal); color:var(--teal)}
+.railbtn[aria-pressed="true"]{background:var(--teal); color:#fff; border-color:var(--teal)}
+@media (max-width:620px){ .rail .brand,.meta{display:none} }
+
+/* ---------- toc ---------- */
+.toc{display:none; position:sticky; top:57px; z-index:19; background:var(--surface); border-bottom:1px solid var(--line);
+  padding:10px clamp(14px,3vw,32px); max-height:70vh; overflow:auto}
+.toc.open{display:block}
+.toc ol{margin:0; padding:0; list-style:none; columns:2 260px; column-gap:24px}
+.toc li{break-inside:avoid}
+.toc a{display:flex; gap:10px; padding:7px 4px; text-decoration:none; color:var(--ink); border-radius:5px}
+.toc a:hover{background:var(--tint-teal)}
+.toc .n{font-family:var(--disp); font-weight:700; color:var(--teal); min-width:1.6em}
+.toc .min{margin-left:auto; color:var(--muted); font-size:13px; font-family:var(--mono)}
+.toc a.cur{background:var(--tint-teal)}
+
+/* ---------- layout ---------- */
+main{max-width:860px; margin:0 auto; padding:0 clamp(14px,4vw,28px) 80px}
+section.stage{padding:44px 0 12px; border-bottom:1px solid var(--line)}
+section.stage:last-of-type{border-bottom:0}
+.eyebrow{font-family:var(--disp); font-size:15px; letter-spacing:.2em; color:var(--teal); font-weight:600; margin:0 0 6px; text-transform:uppercase}
+.eyebrow .t{letter-spacing:.04em; color:var(--muted); font-family:var(--mono); font-size:12.5px; margin-left:8px}
+h1,h2,h3{line-height:1.3; margin:0}
+h2.claim{font-size:clamp(24px,3.6vw,34px); font-weight:900; text-wrap:balance; margin-bottom:10px}
+h3{font-size:19px; margin:26px 0 8px}
+.lead{color:var(--muted); font-size:17.5px; margin:0 0 16px; max-width:42em}
+.lead strong{color:var(--ink)}
+p{margin:0 0 12px}
+ol.steps{counter-reset:s; list-style:none; padding:0; margin:12px 0 16px}
+ol.steps>li{counter-increment:s; position:relative; padding:12px 14px 12px 54px; margin:0 0 10px;
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+ol.steps>li::before{content:counter(s); position:absolute; left:12px; top:11px; width:30px; height:30px; border-radius:50%;
+  background:var(--teal); color:#fff; font-family:var(--disp); font-weight:700; font-size:17px; display:flex; align-items:center; justify-content:center}
+ol.steps>li p:last-child{margin-bottom:0}
+ul.plain{margin:6px 0 12px; padding-left:1.3em}
+
+/* ---------- hero ---------- */
+.hero{padding:44px 0 24px}
+.hero .kicker{font-family:var(--disp); letter-spacing:.2em; color:var(--teal); font-weight:600; margin:0 0 10px}
+.hero h1{font-size:clamp(30px,5.6vw,52px); font-weight:900; line-height:1.18; text-wrap:balance; margin-bottom:12px}
+.rule{height:3px; background:var(--teal); width:min(100%,160px); border-radius:2px; margin:16px 0}
+.facts{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:18px 0}
+@media (max-width:640px){.facts{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- cards ---------- */
+.card{background:var(--surface); border:1px solid var(--line); border-top:3px solid var(--teal); border-radius:var(--r); padding:12px 14px}
+.card .n{font-family:var(--disp); font-size:34px; line-height:1; color:var(--teal); font-weight:700; font-variant-numeric:tabular-nums}
+.card .l{font-size:14px; color:var(--muted)}
+.cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:12px 0}
+.card.red{border-top-color:#c62828}.card.red .n{color:#c62828}
+.card.yel{border-top-color:#e0a800}.card.yel .n{color:#a87e00}
+.card.grn{border-top-color:#2e7d32}.card.grn .n{color:#2e7d32}
+.card.blk{border-top-color:#262626}.card.blk .n{color:var(--ink)}
+
+/* ---------- callouts ---------- */
+.ask,.warn,.tip{border-radius:0 var(--r) var(--r) 0; padding:12px 16px; margin:14px 0}
+.ask{background:var(--tint-signal); border-left:4px solid var(--signal); font-weight:700}
+.ask small{display:block; font-weight:400; color:var(--muted); margin-top:3px; font-size:.88em}
+.warn{background:var(--tint-alert); border-left:4px solid var(--alert)}
+.warn b:first-child{color:var(--alert)}
+.tip{background:var(--tint-teal); border-left:4px solid var(--teal)}
+.ask p:last-child,.warn p:last-child,.tip p:last-child{margin-bottom:0}
+.gentle{color:var(--muted); font-size:15px}
+.gentle::before{content:"ⓘ "; color:var(--signal)}
+
+/* ---------- shot placeholder ---------- */
+.shot{border:2px dashed var(--rule); border-radius:var(--r); background:var(--surface2); color:var(--muted);
+  min-height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+  padding:16px; margin:12px 0; font-size:14.5px}
+.shot b{font-family:var(--disp); letter-spacing:.14em; color:var(--signal); font-size:15px}
+
+/* ---------- checklist ---------- */
+.check{list-style:none; padding:0; margin:10px 0 14px; background:var(--surface); border:1px solid var(--line); border-radius:var(--r)}
+.check li{border-bottom:1px solid var(--line)}
+.check li:last-child{border-bottom:0}
+.check label{display:flex; gap:12px; align-items:flex-start; padding:11px 14px; cursor:pointer; min-height:44px}
+.check input{width:22px; height:22px; margin:3px 0 0; flex:none; accent-color:var(--teal)}
+.check input:checked+span{color:var(--muted); text-decoration:line-through; text-decoration-color:var(--rule)}
+.check-head{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:20px}
+.check-head h3{margin:0}
+.check-head .count{font-family:var(--mono); font-size:13px; color:var(--muted)}
+
+/* ---------- prompt ---------- */
+.prompt{margin:12px 0 18px; border:1px solid var(--line); border-radius:var(--r); background:var(--surface); overflow:hidden}
+.prompt-head{display:flex; align-items:center; gap:10px; padding:8px 8px 8px 14px; background:var(--surface2); border-bottom:1px solid var(--line)}
+.prompt-head .tag{font-family:var(--disp); font-weight:700; color:#fff; background:var(--teal); border-radius:4px; padding:0 8px; letter-spacing:.05em}
+.prompt-head .name{font-weight:700; font-size:15px; flex:1}
+.copy{font:inherit; font-size:14px; font-weight:700; background:var(--teal); color:#fff; border:0; border-radius:6px; padding:8px 14px; min-height:40px; cursor:pointer; white-space:nowrap}
+.copy:hover{filter:brightness(1.1)}
+.copy.ok{background:var(--signal)}
+.prompt pre{margin:0; padding:14px; font-family:var(--mono); font-size:14px; line-height:1.65; white-space:pre-wrap; word-break:break-word; max-height:340px; overflow:auto}
+.prompt.long pre{max-height:300px}
+
+/* ---------- details ---------- */
+details{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); margin:12px 0}
+details>summary{cursor:pointer; padding:12px 14px; font-weight:700; list-style:none; display:flex; gap:10px; align-items:center; min-height:44px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸"; color:var(--teal); transition:transform .14s}
+details[open]>summary::before{transform:rotate(90deg)}
+details>.in{padding:0 16px 14px}
+details.answer{border-color:var(--signal)}
+details.answer>summary{color:var(--signal)}
+
+/* ---------- table ---------- */
+.tbl{overflow-x:auto; margin:10px 0 14px}
+table{border-collapse:collapse; width:100%; font-size:15px; background:var(--surface)}
+th,td{border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top}
+th{background:var(--surface2); font-weight:700}
+td.num{text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono)}
+
+/* ---------- prompt anatomy ---------- */
+.anat{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:8px; margin:12px 0}
+.anat div{background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--teal); border-radius:0 var(--r) var(--r) 0; padding:8px 12px; font-size:15px}
+.anat b{display:block; font-family:var(--mono); font-size:13.5px; color:var(--teal)}
+.anat div.hot{border-left-color:var(--signal)}
+.anat div.hot b{color:var(--signal)}
+
+/* ---------- downloads ---------- */
+.dl{list-style:none; padding:0; margin:10px 0; display:grid; gap:8px}
+.dl li{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:10px 14px; display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline}
+.dl a{font-weight:700; font-family:var(--mono); font-size:15px; word-break:break-all}
+.dl span{color:var(--muted); font-size:14.5px}
+.btn{display:inline-flex; align-items:center; gap:6px; font-weight:700; text-decoration:none; background:var(--teal); color:#fff; border-radius:6px; padding:10px 16px; min-height:44px; margin:4px 8px 4px 0}
+.btn.ghost{background:var(--surface); color:var(--teal); border:1px solid var(--teal)}
+
+/* ---------- closing ---------- */
+.three{list-style:none; padding:0; margin:14px 0}
+.three li{display:flex; gap:14px; align-items:baseline; font-size:clamp(19px,2.6vw,25px); font-weight:700; line-height:1.4; margin-bottom:10px}
+.three .i{font-family:var(--disp); color:var(--teal); min-width:1.3em}
+
+/* ---------- nav at stage end ---------- */
+.next{display:flex; justify-content:flex-end; margin:18px 0 0}
+.next a{font-size:15px; text-decoration:none; border:1px solid var(--line); background:var(--surface); border-radius:6px; padding:8px 14px; color:var(--ink); min-height:44px; display:inline-flex; align-items:center}
+.next a:hover{border-color:var(--teal); color:var(--teal)}
+
+/* ---------- instructor mode ---------- */
+.teach{display:none}
+body.teaching .teach{display:block}
+body.teaching span.teach{display:inline}
+.teach-note{background:var(--surface2); border:1px dashed var(--teal); border-radius:var(--r); padding:10px 14px; margin:12px 0; font-size:15px}
+.teach-note::before{content:"講師"; display:inline-block; font-family:var(--disp); font-weight:700; letter-spacing:.1em;
+  background:var(--teal); color:#fff; border-radius:4px; padding:0 7px; margin-right:8px; font-size:13px}
+.teach-note ul{margin:6px 0 0; padding-left:1.2em}
+.teach-banner{background:var(--teal); color:#fff; text-align:center; font-size:14px; padding:4px 10px}
+
+footer{max-width:860px; margin:0 auto; padding:20px clamp(14px,4vw,28px) 48px; color:var(--muted); font-size:14px; border-top:1px solid var(--line)}
+
+@media print{
+  .rail,.toc,.copy,.next,.teach-banner{display:none !important}
+  body{background:#fff; font-size:12pt}
+  details>.in{display:block}
+  .prompt pre{max-height:none}
+  section.stage{break-inside:auto}
+}
+</style>
+</head>
+<body>
+<div class="teach teach-banner" role="status">講師模式：顯示時間與講師提醒。網址加 <code style="background:transparent;color:#fff">?teach</code> 可直接開啟。</div>
+
+<header class="rail">
+  <span class="brand">TAITUNG DMAT · AI 圖表</span>
+  <div class="ticks" id="ticks" aria-hidden="true"></div>
+  <span class="meta" id="meta"></span>
+  <button class="railbtn" id="tocBtn" type="button" aria-expanded="false" aria-controls="toc">目錄</button>
+  <button class="railbtn" id="teachBtn" type="button" aria-pressed="false" title="顯示時間與講師提醒">講師模式</button>
+</header>
+<nav class="toc" id="toc" aria-label="課程目錄"><ol id="tocList"></ol></nav>
+
+<main>
+
+<!-- ===================== hero ===================== -->
+<div class="hero" id="top">
+  <p class="kicker">台東進階 DMAT 課程 · 2026/11/4–5 · 約 50 分鐘</p>
+  <h1>用 Excel 整理資料，<br>交給 AI 做圖表</h1>
+  <p class="lead">今天不學 Power BI。你會把一份檢傷 Excel <strong>先去識別化</strong>，再交給 Gemini，做出一個<strong>給 CC 看的單一 HTML 報表</strong>——存成一個檔就能傳出去。</p>
+  <div class="rule"></div>
+  <div class="facts">
+    <div class="card"><div class="n">50</div><div class="l">分鐘</div></div>
+    <div class="card"><div class="n">10</div><div class="l">個段落，跟著做</div></div>
+    <div class="card"><div class="n">1</div><div class="l">份 Excel 練習檔</div></div>
+    <div class="card"><div class="n">1</div><div class="l">個 HTML 帶回家</div></div>
+  </div>
+  <div class="warn"><b>先說清楚：</b>本頁與練習檔全部是<strong>教學模擬資料</strong>。姓名是明顯虛構的名字（如「王演甲」「Drill Person A」），不對應任何真實人物；日期 2026/11/01 與所有檢傷時間都是虛構的。</div>
+  <p class="gentle">勾選清單只存在你自己的瀏覽器（localStorage），不會傳到任何地方。要清除，到頁面最下方按「清除勾選」。</p>
+</div>
+
+<!-- ===================== 0 ===================== -->
+<section class="stage" id="s0" data-min="4" data-title="開場：先看終點">
+  <p class="eyebrow">00 · 開場<span class="t">4 分</span><span class="t teach">00:00–04:00</span></p>
+  <h2 class="claim">先看終點：50 分鐘後，你手上會有這一份。</h2>
+  <p class="lead">打開範例報表，看三樣東西：<strong>數字卡</strong>、<strong>三張圖</strong>、<strong>給 CC 的重點</strong>。</p>
+  <p><a class="btn" href="../sample-report.html" target="_blank" rel="noopener">開啟範例報表 ↗</a></p>
+  <p class="gentle">範例報表的圖表需要網路（它用網路載入圖表套件）。沒網路時，往下捲仍看得到「數字表」。</p>
+  <div class="ask">CC 打開這份報表，最想先看到哪一個數字？
+    <small>想一下就好，等一下做自己的報表時會用到。</small></div>
+  <div class="teach teach-note">開 <code>sample-report.html</code> 投影：數字卡 → 三張圖 → 給 CC 的重點。一句話：「今天不學 Power BI，50 分鐘後你會用 AI 做出這一份，存成一個檔傳給 CC。」<br>成功檢核：學員能說出報表要給誰看（CC）。</div>
+  <div class="next"><a href="#s1">下一段：準備練習檔 →</a></div>
+</section>
+
+<!-- ===================== 1 ===================== -->
+<section class="stage" id="s1" data-min="3" data-title="準備：下載練習檔、開 Gemini">
+  <p class="eyebrow">01 · 準備<span class="t">3 分</span><span class="t teach">04:00–07:00</span></p>
+  <h2 class="claim">同一個畫面上，左邊 Excel、右邊 Gemini。</h2>
+  <ol class="steps">
+    <li><p><strong>下載練習檔</strong></p>
+      <p><a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-practice-with-time.xlsx">下載 triage-practice-with-time.xlsx</a></p>
+      <p class="gentle">下載不了？請改從 <a href="https://drive.google.com/drive/folders/1R9Wv7EoanA5FLBEncFCm26IZvZS2uIBG" target="_blank" rel="noopener">課程雲端資料夾</a> 下載，或向助教拿 USB。</p></li>
+    <li><p><strong>用 Excel 開啟</strong>。有 11 欄、51 筆傷患（含標題共 52 列），其中有「患者姓名」。</p></li>
+    <li><p><strong>開 Gemini 免費版</strong>：<a href="https://gemini.google.com" target="_blank" rel="noopener">gemini.google.com ↗</a>，用自己的 Google 帳號登入，開一個新對話。</p>
+      <p class="gentle">每個人看到的 Gemini 畫面可能不太一樣。若畫面不同，請找頁面下方可以輸入文字的對話框，或「新對話」之類的按鈕。</p></li>
+  </ol>
+  <div class="warn"><b>這份檔案有姓名。</b>在下一段去識別化之前，<strong>不要</strong>複製貼上或上傳到任何 AI。</div>
+  <div class="check-head"><h3>檢查一下</h3><span class="count" data-count="c1"></span></div>
+  <ul class="check" data-list="c1">
+    <li><label><input type="checkbox"><span>練習檔已用 Excel 打開</span></label></li>
+    <li><label><input type="checkbox"><span>Gemini 已登入，開了新對話</span></label></li>
+    <li><label><input type="checkbox"><span>兩個視窗都看得到（電腦可左右並排；手機請切換 App）</span></label></li>
+  </ul>
+  <div class="teach teach-note">發 <code>triage-practice-with-time.xlsx</code>；提醒「這份有姓名，不能直接複製貼給 AI」。<br>成功檢核：每人畫面上同時有 Excel 與 Gemini。課前應已請學員登入 Google 帳號，教室不要花時間在登入上。</div>
+  <div class="next"><a href="#s2">下一段：去識別化原則 →</a></div>
+</section>
+
+<!-- ===================== 2 ===================== -->
+<section class="stage" id="s2" data-min="5" data-title="去識別化：哪些欄位要處理">
+  <p class="eyebrow">02 · 去識別化原則<span class="t">5 分</span><span class="t teach">07:00–12:00</span></p>
+  <h2 class="claim">報表用不到的，就不要交給 AI。</h2>
+  <div class="cards">
+    <div class="card"><div class="n" style="font-size:22px">直接識別</div><div class="l">一看就知道是誰：<strong>姓名</strong></div></div>
+    <div class="card"><div class="n" style="font-size:22px">間接識別</div><div class="l">單看認不出，組合起來就認得：<strong>精確年齡、居住城市、少見國籍</strong></div></div>
+    <div class="card"><div class="n" style="font-size:22px">最少必要</div><div class="l">報表用不到的欄位，就刪掉</div></div>
+  </div>
+  <h3>問 Gemini：哪些欄位要處理？（只貼欄位名稱）</h3>
+  <p>把下面整段提示詞複製到 Gemini 送出。這段<strong>只有欄位名稱，沒有任何一筆資料</strong>，可以放心送。</p>
+  <div class="prompt" id="prompt-A"><div class="prompt-head"><span class="tag">A</span><span class="name">去識別化檢查（只貼欄位名稱，不貼資料）</span><button class="copy" type="button" aria-label="複製提示詞 A">複製</button></div><pre>我是 DMAT 隊員，要把一份傷患檢傷 Excel 的內容交給 AI 做統計報表，再交給 CC（指揮協調）。
+在把資料貼給 AI 之前，我要先去識別化。請「不要」要求我提供資料內容。
+
+欄位名稱如下（每列一位傷患）：
+患者編號、檢傷、後送狀態、年齡、後送醫院、性別、國籍、居住城市、患者姓名、Age Band、檢傷時間
+
+補充：
+- 共約 50 人，是單一事件的小樣本。
+- 報表只需要：檢傷分級分布、時間趨勢、後送醫院分布、兒童／長者人數、非臺灣籍人數。
+
+請用表格回答，每個欄位一列，欄位：
+欄位名稱｜直接識別／間接識別／非個人資訊｜建議處理（保留／刪除／泛化成什麼）｜理由（一句話）
+
+最後再提醒我：小樣本中哪些「欄位組合」仍可能認出特定的人。</pre></div>
+  <details class="answer"><summary>先自己判斷，再展開：建議的處理方式</summary><div class="in">
+    <p>姓名刪除；年齡刪除改用 Age Band；居住城市刪除；國籍泛化為「臺灣／非臺灣」；患者編號保留（假名代碼，含姓名的原檔只留在本機）；其餘保留。</p><p>Gemini 的建議如果跟解答不同（例如建議刪患者編號），請學員說出自己的判斷：<strong>報表要不要用到？CC 要不要用到？</strong></p>
+  </div></details>
+  <div class="teach teach-note">三個概念：直接識別（姓名）、間接識別（年齡、居住城市、少見國籍，組合起來就認得出來）、最少必要（報表用不到就刪）。示範提示詞 A：只貼欄位名稱，不貼資料。<br>成功檢核：Gemini 回了一張逐欄建議表。</div>
+  <div class="next"><a href="#s3">下一段：動手去識別化 →</a></div>
+</section>
+
+<!-- ===================== 3 ===================== -->
+<section class="stage" id="s3" data-min="8" data-title="動手：在 Excel 去識別化">
+  <p class="eyebrow">03 · 動手去識別化<span class="t">8 分</span><span class="t teach">12:00–20:00</span></p>
+  <h2 class="claim">刪三欄、改一欄、留下編號。</h2>
+  <ol class="steps">
+    <li><p><strong>刪除三欄</strong>：按住 <kbd>Ctrl</kbd>（Mac：<kbd>⌘</kbd>）點選「<strong>患者姓名</strong>」「<strong>年齡</strong>」「<strong>居住城市</strong>」的欄標題 → 按右鍵 →「刪除」。</p>
+      <p class="gentle">要「刪除」欄，不要只是「隱藏」——隱藏的欄可能在複製時一起被帶走。</p></li>
+    <li><p><strong>國籍改成「臺灣／非臺灣」</strong>：在「國籍」右邊插入一欄，在第 2 列輸入：</p>
+      <p><code>=IF(F2="臺灣","臺灣","非臺灣")</code></p>
+      <p>（刪完三欄後國籍在 F 欄；若你的欄位順序不同，請改成國籍所在的欄位字母。）往下填滿 → 整欄複製 →「選擇性貼上 → 值」→ 刪掉原本的「國籍」欄 → 新欄標題改成「<strong>國籍類別</strong>」。</p></li>
+    <li><p><strong>「患者編號」保留</strong>。它是假名代碼，對帳、找重複都要用到。</p></li>
+    <li><p><strong>另存新檔</strong>：<code>檢傷資料_去識別化.xlsx</code>。之後都從這個檔複製，不再碰原檔。</p></li>
+  </ol>
+  <div class="check-head"><h3>做完對一下</h3><span class="count" data-count="c3"></span></div>
+  <ul class="check" data-list="c3">
+    <li><label><input type="checkbox"><span>剩 8 欄：患者編號、檢傷、後送狀態、後送醫院、性別、國籍類別、Age Band、檢傷時間</span></label></li>
+    <li><label><input type="checkbox"><span>51 筆資料（含標題 52 列）都還在</span></label></li>
+    <li><label><input type="checkbox"><span>沒有「患者姓名」「年齡」「居住城市」「國籍」（原欄）</span></label></li>
+    <li><label><input type="checkbox"><span>國籍類別只有「臺灣」「非臺灣」，其中「非臺灣」7 列</span></label></li>
+    <li><label><input type="checkbox"><span>已另存成 <code>檢傷資料_去識別化.xlsx</code></span></label></li>
+  </ul>
+  <details class="answer"><summary>對答案：為什麼這樣處理？</summary><div class="in">
+    <div class="tbl"><table>
+      <tr><th>欄位</th><th>處理</th><th>為什麼</th></tr>
+      <tr><td>患者姓名</td><td>刪除</td><td>直接識別；報表用不到</td></tr>
+      <tr><td>年齡</td><td>刪除</td><td>精確年齡是間接識別；已有 Age Band 可用</td></tr>
+      <tr><td>居住城市</td><td>刪除</td><td>間接識別；報表用不到</td></tr>
+      <tr><td>國籍</td><td>泛化為「臺灣／非臺灣」</td><td>少見國籍在小樣本裡很好認；報表只需要非臺灣籍人數</td></tr>
+      <tr><td>患者編號</td><td>保留</td><td>假名代碼，用來對帳、找重複；含姓名的原檔只留在本機</td></tr>
+      <tr><td>其他欄位</td><td>保留</td><td>報表需要</td></tr>
+    </table></div>
+    <p>標題寫「非臺灣」而不是「外籍」：只是把「不是臺灣」的歸成一類，不額外判斷身分。</p>
+    <p class="gentle">「患者編號不是也能連回個人嗎？」是的，這叫假名化。所以含姓名的原檔不貼、不上傳，只留本機。要更嚴格可以改用新流水號，另存對照表。</p>
+    <p>完整解答檔：<a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a>（「說明」工作表有逐欄理由）。</p>
+  </div></details>
+  <div class="teach teach-note">巡堂；提醒「要刪除欄，不要只是隱藏欄」。18–20 分投影解答檔「說明」工作表：為什麼保留患者編號（對帳、找重複）、為什麼寫「非臺灣」而非「外籍」。<br>時間落後時：直接發解答檔，跳過動手，但<strong>下一段之後的貼上檢查不要省</strong>。</div>
+  <div class="next"><a href="#s4">下一段：提示詞結構 →</a></div>
+</section>
+
+<!-- ===================== 4 ===================== -->
+<section class="stage" id="s4" data-min="3" data-title="提示詞結構">
+  <p class="eyebrow">04 · 提示詞結構<span class="t">3 分</span><span class="t teach">20:00–23:00</span></p>
+  <h2 class="claim">先叫 AI 報數字，你才知道它讀對沒。</h2>
+  <p class="lead">主提示 B 分成七段。最重要的是<strong>「先檢查，再做報表」</strong>，以及<strong>貼資料的位置</strong>。</p>
+  <div class="anat">
+    <div><b>【角色】</b>它是誰：DMAT 計畫組的資料助理</div>
+    <div><b>【資料】</b>欄位與每欄合法的值</div>
+    <div><b>【讀者與目的】</b>給 CC 看，要掌握什麼</div>
+    <div class="hot"><b>【先檢查，再做報表】</b>先報總列數、重複、各類人數</div>
+    <div><b>【任務】</b>單一 HTML 檔、要哪些圖與數字卡</div>
+    <div><b>【輸出】</b>先檢查表，再給完整 HTML</div>
+    <div class="hot"><b>【↓↓ 在這一行下面貼上…↓↓】</b>你的資料貼在這裡</div>
+  </div>
+  <p>先複製下來看一遍，<strong>還不要送出</strong>。下一段會一起貼資料。</p>
+  <div class="prompt long" id="prompt-B"><div class="prompt-head"><span class="tag">B</span><span class="name">主提示：產生給 CC 的單一 HTML 報表</span><button class="copy" type="button" aria-label="複製提示詞 B">複製</button></div><pre>【角色】你是 DMAT 計畫組的資料助理，熟悉災難醫療的檢傷分級。
+
+【資料】本提示最下方以表格貼上的，是本隊在單一事件中的檢傷資料
+（從 Excel 複製貼上，第一列是標題，欄位以 Tab 分隔；已去識別化，教學模擬資料，日期為虛構）。
+一列＝一位傷患。欄位：
+- 患者編號（例 SMA-001）
+- 檢傷：只有四種值「紅：重傷」「黃：中傷」「綠：輕傷」「黑：期待治療」
+- 後送狀態：後送醫院／現場死亡／自行離開
+- 後送醫院：醫院名稱；「無」表示沒有後送
+- 性別
+- 國籍類別：臺灣／非臺灣
+- Age Band：5–17、18–64、65+
+- 檢傷時間：格式 YYYY/MM/DD HH:MM
+
+【讀者與目的】報表給 CC（指揮協調）看，用來掌握本隊傷患量、嚴重度、
+各醫院收到多少傷患，以及檢傷人數是否還在增加。
+
+【先檢查，再做報表】在給程式碼之前，先用表格列出：
+1. 總列數（不含標題列）
+2. 有沒有重複：除了「患者編號」以外所有欄位都相同，就算重複，列出是哪兩個編號
+3. 去除重複後的人數，以及各檢傷分級、各後送狀態、各後送醫院的人數
+4. 最早與最晚的檢傷時間
+
+【任務】做一個「單一 HTML 檔」的報表，要求：
+- 所有 CSS、JavaScript 都寫在同一個檔案裡；資料以 JavaScript 陣列內嵌在檔案中。
+- 可以用 Chart.js（從 CDN 載入），不要用其他外部檔案。
+- 所有數字都要由內嵌資料「計算」出來，不要手打數字；重複的那一筆不計入。
+- 頁面最上方標示：「教學模擬資料，日期與時間為虛構」。
+- 標題：「（隊名）DMAT 檢傷與後送回報 — 給 CC」，並顯示資料時間（最早～最晚檢傷時間）。
+- 內容依序：
+  1. 數字卡：傷患總數、紅、黃、綠、黑人數、已後送人數、現場死亡、自行離開、非臺灣籍人數、兒童（5–17）／長者（65+）人數
+  2. 「給 CC 的重點」3–5 句，只能根據資料寫，不要推測資料裡沒有的事
+  3. 檢傷分級分布長條圖
+  4. 後送醫院分布：橫條圖，依檢傷分級堆疊
+  5. 時間趨勢：每 30 分鐘一格，依檢傷分級堆疊的長條圖
+  6. 每張圖下方附可展開的數字表
+  7. 資料品質說明：原始筆數、排除了哪一筆重複
+- 顏色：紅 #c62828、黃 #e0a800、綠 #2e7d32、黑 #262626；其他配色簡潔。
+- 介面全部用繁體中文（台灣用語）。
+
+【輸出】先給上面的檢查表，再把完整 HTML 放在「一個」程式碼區塊裡，不要省略任何部分。
+
+【↓↓ 在這一行下面貼上 Excel 資料（含標題列）↓↓】
+
+【資料結束】</pre></div>
+  <div class="ask">在上面的提示詞裡，找到「先檢查」那一段和貼資料的標記。
+    <small>改成你的隊名：把「（隊名）」換掉即可。</small></div>
+  <div class="teach teach-note">拆解：角色→資料（欄位與合法值）→讀者與目的→先檢查→任務→輸出格式→貼資料的位置。<br>成功檢核：能指出「先檢查」那一段與貼資料的位置。</div>
+  <div class="next"><a href="#s5">下一段：貼上與最後檢查 →</a></div>
+</section>
+
+<!-- ===================== 5 ===================== -->
+<section class="stage" id="s5" data-min="4" data-title="貼上＝最後一次去識別化檢查">
+  <p class="eyebrow">05 · 複製貼上<span class="t">4 分</span><span class="t teach">23:00–27:00</span></p>
+  <h2 class="claim">貼上之後、送出之前，親眼再看一次。</h2>
+  <p class="lead">用「貼的」而不是上傳：貼進對話框的內容就在你眼前，<strong>送出前可以一列一列看到要交給 AI 的是什麼</strong>。這是最後一次去識別化檢查。</p>
+  <ol class="steps">
+    <li><p>在 Gemini 對話框貼上<a href="#s4">主提示 B</a>。<strong>先不要送出。</strong></p></li>
+    <li><p>確認你開的是 <code>檢傷資料_去識別化.xlsx</code>（不是原檔）→ 點 <code>A1</code> → <kbd>Ctrl</kbd>+<kbd>A</kbd> → <kbd>Ctrl</kbd>+<kbd>C</kbd>（Mac：<kbd>⌘</kbd>+<kbd>A</kbd>、<kbd>⌘</kbd>+<kbd>C</kbd>）。</p>
+      <p class="gentle">游標在資料裡按一次 <kbd>Ctrl</kbd>+<kbd>A</kbd> 會選整塊資料（含標題），這樣就夠了。</p></li>
+    <li><p>回到 Gemini，用滑鼠點在「【↓↓ 在這一行下面貼上 Excel 資料（含標題列）↓↓】」的<strong>下一行</strong> → <kbd>Ctrl</kbd>+<kbd>V</kbd>。</p>
+      <p class="gentle">在對話框裡按 <kbd>Enter</kbd> 有可能會直接送出。不確定的話，用滑鼠點位置，不要按 Enter；需要換行時可試 <kbd>Shift</kbd>+<kbd>Enter</kbd>。</p>
+      <p class="gentle">貼上較長的內容時，有些版本會把它收成一個「附件／貼上區塊」。若畫面不同，請找那個區塊點開檢視；點不開就舉手，我們改成在 Excel 一起檢查。</p></li>
+    <li><p>對照下面的清單看一遍，<strong>全部打勾才送出</strong>。</p></li>
+  </ol>
+  <div class="shot"><b>截圖待補</b>Gemini 對話框：提示詞 B 已貼上、資料貼在標記下方、尚未送出的樣子</div>
+  <div class="check-head"><h3>送出前的自我檢查</h3><span class="count" data-count="c5"></span></div>
+  <ul class="check" data-list="c5">
+    <li><label><input type="checkbox"><span>標題列只有 8 欄：患者編號、檢傷、後送狀態、後送醫院、性別、國籍類別、Age Band、檢傷時間</span></label></li>
+    <li><label><input type="checkbox"><span>沒有「患者姓名」「年齡」「居住城市」「國籍」（原欄）</span></label></li>
+    <li><label><input type="checkbox"><span>國籍類別只出現「臺灣」「非臺灣」</span></label></li>
+    <li><label><input type="checkbox"><span>最後一列有貼到（沒有斷在中間）</span></label></li>
+    <li><label><input type="checkbox"><span>檢傷時間看起來像 <code>2026/11/01 09:06</code>，不是一串小數</span></label></li>
+  </ul>
+  <div class="warn"><b>任何一項不對：不要送出。</b>清空對話框，回 Excel 修正後重新複製。<br>檢傷時間變成小數：把 Excel「檢傷時間」欄的儲存格格式設為 <code>yyyy/mm/dd hh:mm</code> 再複製。</div>
+  <details><summary>選用：請 Gemini 再幫你檢查一次（A-2，輔助，不能取代自己看）</summary><div class="in">
+    <div class="prompt" id="prompt-A2"><div class="prompt-head"><span class="tag">A-2</span><span class="name">請 Gemini 再檢查一次（選用）</span><button class="copy" type="button" aria-label="複製提示詞 A-2">複製</button></div><pre>下面以表格貼上的是我已經去識別化的資料（從 Excel 複製，第一列是標題）。
+請只檢查「還有沒有可以認出個人的資訊」，
+例如：姓名、精確年齡、地址或城市、少見國籍、備註欄裡的文字。
+如果有，請列出欄位名稱與列號；如果沒有，請回答「未發現」。不要做其他分析。
+
+【↓↓ 在這一行下面貼上 Excel 資料（含標題列）↓↓】
+
+【資料結束】</pre></div>
+    <p class="gentle">用進階上傳時，把第一句改成「附件是我已經去識別化的檔案。」，並刪掉兩行【】標記。</p>
+  </div></details>
+  <div class="teach teach-note">投影示範一次完整流程，貼上後<strong>先不要送出</strong>，帶大家一起看貼上的內容。<br>成功檢核：每人都在送出前說得出「我送出的內容沒有姓名」。<ul>
+    <li>需實測：貼上 51 列＋標題是否完整、欄位是否對齊；長內容是否被收成附件、能否點開檢視。</li>
+    <li>需實測：Enter 是否直接送出、換行是否用 Shift+Enter。</li>
+    <li>若課前實測確定看不到貼上內容，本段改成「貼上前在 Excel 檢查」。</li>
+    <li>不小心先送出：若已去識別化，繼續即可；若發現有姓名，停止使用該對話、依介面刪除對話，並回報講師。</li></ul></div>
+  <div class="next"><a href="#s6">下一段：Gemini 產生報表 →</a></div>
+</section>
+
+<!-- ===================== 6 ===================== -->
+<section class="stage" id="s6" data-min="7" data-title="Gemini 做出單一 HTML 報表">
+  <p class="eyebrow">06 · 產生報表<span class="t">7 分</span><span class="t teach">27:00–34:00</span></p>
+  <h2 class="claim">先看檢查表，再拿 HTML。</h2>
+  <ol class="steps">
+    <li><p><strong>送出。</strong>Gemini 會先回一張檢查表，再給一大段程式碼。</p></li>
+    <li><p><strong>先看檢查表</strong>：總列數是不是 51？有沒有找到一組重複？</p>
+      <p class="gentle">總列數不是 51：先看對話框裡貼的最後一列有沒有貼到，再追問「請逐列列出你讀到的患者編號」。</p></li>
+    <li><p><strong>看成品</strong>（擇一）：</p>
+      <ul class="plain">
+        <li>如果出現預覽畫面（例如 Canvas），直接看。若畫面不同，請找程式碼區塊旁邊的「預覽」之類按鈕；找不到就用下一個方法。</li>
+        <li><strong>一定可行的方法</strong>：按程式碼區塊的「複製」→ 開記事本（Mac 用「文字編輯」，先選「格式 → 製作純文字格式」）→ 貼上 → 另存新檔 <code>給CC報表.html</code>，編碼選 <strong>UTF-8</strong> → 雙擊用瀏覽器開啟。</li>
+      </ul></li>
+  </ol>
+  <div class="shot"><b>截圖待補</b>Gemini 回答中的程式碼區塊與「複製」按鈕位置（介面可能因版本不同）</div>
+  <div class="tip"><p>圖表需要網路載入圖表套件（Chart.js）。沒網路時圖不會出現 → 用下一段的 <a href="#s7">C-2 離線版</a>。開啟後中文變亂碼 → 重新另存，編碼選 UTF-8。</p></div>
+  <div class="check-head"><h3>檢查一下</h3><span class="count" data-count="c6"></span></div>
+  <ul class="check" data-list="c6">
+    <li><label><input type="checkbox"><span>看過 Gemini 的檢查表（總列數、重複、各類人數）</span></label></li>
+    <li><label><input type="checkbox"><span>報表已存成 <code>給CC報表.html</code>，瀏覽器打得開</span></label></li>
+  </ul>
+  <div class="teach teach-note">同步示範一次。成功檢核：檢查表 51 列、SMA-100／SMA-048 重複、去重 50 人；瀏覽器開得起報表。<ul>
+    <li>需實測：主提示能否一次輸出完整 HTML、會不會被截斷（被截斷用 C-4）。</li>
+    <li>需實測：免費版 Canvas／預覽能否顯示 HTML、能否下載。</li>
+    <li>額度用完或帳號問題：兩人共用一台，或發範例報表讓學員直接練「核對數字」。</li></ul></div>
+  <div class="next"><a href="#s7">下一段：核對數字 →</a></div>
+</section>
+
+<!-- ===================== 7 ===================== -->
+<section class="stage" id="s7" data-min="6" data-title="核對數字與追問修正">
+  <p class="eyebrow">07 · 核對數字<span class="t">6 分</span><span class="t teach">34:00–40:00</span></p>
+  <h2 class="claim">AI 算的數字，自己對過才算數。</h2>
+  <p class="lead">用 Excel 的「篩選」自己數一次，跟報表比。<strong>先自己數，再展開答案。</strong></p>
+  <ol class="steps">
+    <li><p>在去識別化檔點標題列 →「資料 → 篩選」。</p></li>
+    <li><p>找出重複：有兩個編號除了「患者編號」以外，每一欄都一樣。</p></li>
+    <li><p>去掉重複後，數：總人數、紅、黃、綠、黑、後送醫院人數。</p></li>
+  </ol>
+  <details class="answer"><summary>展開答案（先自己數！）</summary><div class="in">
+    <div class="cards">
+      <div class="card"><div class="n">50</div><div class="l">去重後人數（原始 51 列）</div></div>
+      <div class="card red"><div class="n">12</div><div class="l">紅：重傷</div></div>
+      <div class="card yel"><div class="n">22</div><div class="l">黃：中傷</div></div>
+      <div class="card grn"><div class="n">12</div><div class="l">綠：輕傷</div></div>
+      <div class="card blk"><div class="n">4</div><div class="l">黑：期待治療</div></div>
+      <div class="card"><div class="n">42</div><div class="l">後送醫院</div></div>
+    </div>
+    <p><strong>重複的一組：SMA-048 與 SMA-100</strong>（除編號外完全相同，只算一次）。</p>
+    <details><summary>更多數字（選看）</summary><div class="in">
+      <ul class="plain">
+        <li>後送狀態：後送醫院 42、現場死亡 4、自行離開 4</li>
+        <li>後送醫院：花蓮慈濟醫院 14、門諾醫院 12、國軍花蓮總醫院 8、衛生福利部花蓮醫院 8、無 8</li>
+        <li>非臺灣籍 7；5–17 歲 5、65+ 5</li>
+        <li>檢傷時間：2026/11/01 09:05～12:54（虛構）</li>
+      </ul>
+    </div></details>
+  </div></details>
+  <div class="check-head"><h3>我的報表</h3><span class="count" data-count="c7"></span></div>
+  <ul class="check" data-list="c7">
+    <li><label><input type="checkbox"><span>傷患總數（去重後）跟我在 Excel 數的一樣</span></label></li>
+    <li><label><input type="checkbox"><span>紅、黃、綠、黑的人數都一樣</span></label></li>
+    <li><label><input type="checkbox"><span>後送醫院人數一樣</span></label></li>
+    <li><label><input type="checkbox"><span>報表有排除那一組重複，並寫在「資料品質說明」</span></label></li>
+    <li><label><input type="checkbox"><span>關掉再重開，檔案還打得開</span></label></li>
+  </ul>
+  <h3>不對？用追問修正</h3>
+  <p>只改【】裡的內容，其他照貼。</p>
+  <div class="prompt" id="prompt-C1"><div class="prompt-head"><span class="tag">C-1</span><span class="name">數字對不上</span><button class="copy" type="button" aria-label="複製提示詞 C-1">複製</button></div><pre>報表裡【紅色是 13 人】，但我在 Excel 用篩選算出來是【12 人】。
+請重新檢查：
+1. 是否把重複的那一筆（除了患者編號外內容都相同）也算進去了？
+2. 所有數字是否都由內嵌資料計算，而不是手打？
+請列出每個數字的計算方式，修正後給我「完整」的 HTML，不要只給修改片段。</pre></div>
+  <div class="prompt" id="prompt-C2"><div class="prompt-head"><span class="tag">C-2</span><span class="name">沒有網路也要能看（離線版）</span><button class="copy" type="button" aria-label="複製提示詞 C-2">複製</button></div><pre>CC 那邊可能沒有網路。請改成「不使用任何外部函式庫或 CDN」的版本：
+用純 HTML＋CSS（或內嵌 SVG）畫長條圖，其他內容和數字保持不變。
+給我完整的單一 HTML 檔。</pre></div>
+  <div class="prompt" id="prompt-C3"><div class="prompt-head"><span class="tag">C-3</span><span class="name">讓 CC 更好用（加欄位、可列印）</span><button class="copy" type="button" aria-label="複製提示詞 C-3">複製</button></div><pre>請在報表上方加入可填寫的欄位：隊名、回報人、聯絡電話、回報時間（預設空白，讓我自己填）。
+在「給 CC 的重點」下面加一個「需要 CC 協助的事項」空白區塊。
+另外讓版面可以用 A4 直式列印，列印時數字表全部展開。
+其他內容與數字不要改，給我完整的 HTML。</pre></div>
+  <div class="prompt" id="prompt-C4"><div class="prompt-head"><span class="tag">C-4</span><span class="name">（救援）HTML 被截斷或只給一半</span><button class="copy" type="button" aria-label="複製提示詞 C-4">複製</button></div><pre>你上一則的 HTML 不完整（在【某段文字】之後就斷了）。
+請從頭重新輸出完整的 HTML；如果太長，請把說明文字縮短、
+「給 CC 的重點」改成 3 句，但資料陣列一筆都不能少。</pre></div>
+  <div class="teach teach-note">投影五個核對數字；示範一次追問 C-1 或 C-2。成功檢核：至少 5 個數字跟 Excel 一致；檔案可重開。有餘力的學員：C-3，或附錄的進階上傳。</div>
+  <div class="next"><a href="#s8">下一段：付費版示範 →</a></div>
+</section>
+
+<!-- ===================== 8 ===================== -->
+<section class="stage" id="s8" data-min="6" data-title="付費版示範（講師）">
+  <p class="eyebrow">08 · 付費版示範<span class="t">6 分</span><span class="t teach">40:00–46:00</span></p>
+  <h2 class="claim">付費會更穩更快，但三件事一樣要做。</h2>
+  <p class="lead">這段看講師操作就好。講師會用<strong>同一份主提示、同一份去識別化資料</strong>（一樣用複製貼上）交給付費版，跟你剛剛的成品並排比。</p>
+  <ul class="plain">
+    <li>完整度：一次就給完整 HTML 嗎？</li>
+    <li>正確度：數字對嗎？</li>
+    <li>多輪修改：例如加入依檢傷分級篩選的按鈕、每半小時累積人數。</li>
+  </ul>
+  <div class="ask">哪些功能值得付費？哪些用免費版就夠？
+    <small>不管用哪一版：先去識別化、送出前親眼看、自己對數字——都不能省。</small></div>
+  <div class="teach teach-note">使用哪個付費工具與方案由講師決定；只示範課前實測過的功能，不要現場臨時試。建議先錄影當備案。</div>
+  <div class="next"><a href="#s9">下一段：收尾 →</a></div>
+</section>
+
+<!-- ===================== 9 ===================== -->
+<section class="stage" id="s9" data-min="4" data-title="收尾：帶走三句話">
+  <p class="eyebrow">09 · 帶走三句話<span class="t">4 分</span><span class="t teach">46:00–50:00</span></p>
+  <ul class="three">
+    <li><span class="i">一</span><span>送出前先去識別化，貼上後親眼再看一次。</span></li>
+    <li><span class="i">二</span><span>先叫 AI 報數字，自己對過。</span></li>
+    <li><span class="i">三</span><span>存成一個 HTML，就能傳給 CC。</span></li>
+  </ul>
+  <div class="warn"><b>真實事件資料</b>能不能交給 AI、用哪一個 AI，<strong>依你所屬單位的規定</strong>。免費版對話內容怎麼被保存和使用，請看 Google 當時的 Gemini 隱私說明。</div>
+  <div class="check-head"><h3>離開前</h3><span class="count" data-count="c9"></span></div>
+  <ul class="check" data-list="c9">
+    <li><label><input type="checkbox"><span>我的 <code>給CC報表.html</code> 已存好</span></label></li>
+    <li><label><input type="checkbox"><span>提示詞範本已下載（見下方「下載」）</span></label></li>
+    <li><label><input type="checkbox"><span>含姓名的原檔只留在本機，沒有貼給 AI</span></label></li>
+  </ul>
+  <p class="gentle">資料量大時，可以改成上傳 .csv 或從雲端硬碟帶入（見附錄），但那樣就看不到實際送出的內容，要更小心。</p>
+  <div class="teach teach-note">三句帶走；一句帶過進階選項；提醒真實事件資料依所屬單位規定。成功檢核：每人帶走一份自己做的 HTML。</div>
+</section>
+
+<!-- ===================== downloads ===================== -->
+<section class="stage" id="dl" data-min="0" data-title="下載與資源">
+  <p class="eyebrow">資源包</p>
+  <h2 class="claim">下載</h2>
+  <p>
+    <a class="btn" href="https://github.com/chiawen82/DMAT-course/releases/tag/taitung-2026-11-v1" target="_blank" rel="noopener">所有檔案（Release 頁面）↗</a>
+    <a class="btn ghost" href="https://drive.google.com/drive/folders/1R9Wv7EoanA5FLBEncFCm26IZvZS2uIBG" target="_blank" rel="noopener">課程雲端資料夾（備用）↗</a>
+  </p>
+  <ul class="dl">
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-practice-with-time.xlsx">triage-practice-with-time.xlsx</a><span>練習原檔（含虛構姓名，<strong>不可直接貼給 AI</strong>）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/triage-deidentified-answer.xlsx">triage-deidentified-answer.xlsx</a><span>去識別化解答＋「說明」工作表（練習後對答案）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/prompt-templates.md">prompt-templates.md</a><span>提示詞範本（A、A-2、B、C-1～C-4、進階上傳說明）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/course-flow-50min.md">course-flow-50min.md</a><span>50 分鐘課程流程（含備案）</span></li>
+    <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v1/sample-report.html">sample-report.html</a><span>範例報表（用主提示 B 做出的成品）</span></li>
+  </ul>
+  <p class="gentle">.md 檔是純文字，用記事本或任何文字編輯器都能打開。</p>
+</section>
+
+<!-- ===================== appendix ===================== -->
+<section class="stage" id="ax" data-min="0" data-title="附錄：進階上傳與狀況排除">
+  <p class="eyebrow">附錄</p>
+  <h2 class="claim">進階選項與狀況排除</h2>
+  <details><summary>進階選項：上傳檔案（課堂不教，給有餘力或資料量大的人）</summary><div class="in">
+    <div class="warn"><b>上傳時你看不到實際送出的內容</b>，只看到檔名。上傳前請在 Excel 自己做一次「送出前的自我檢查」，並確認選的是去識別化的檔案，不是含姓名的原檔。</div>
+    <h3>(a) 另存 .csv 上傳</h3>
+    <ol class="plain">
+      <li>Excel「另存新檔」→ 存檔類型選「CSV UTF-8（逗號分隔）」（舊版 Excel 若沒有此選項，一般 CSV 的中文可能變亂碼）。</li>
+      <li>在 Gemini 用上傳檔案的功能選取該 .csv。若畫面不同，請找對話框旁的「+」或迴紋針圖示。</li>
+      <li>貼提示詞 B，把【資料】第一句改成「附件是本隊在單一事件中的檢傷資料…」，並刪掉最後的貼資料標記與【資料結束】，送出。</li>
+    </ol>
+    <h3>(b) 放到 Google 試算表，從雲端硬碟帶入</h3>
+    <ol class="plain">
+      <li>把去識別化的檔案上傳到自己的 Google 雲端硬碟，用 Google 試算表開啟；共用設定維持只有自己。</li>
+      <li>在 Gemini 對話框找「+」之類的選單，選擇從 Google 雲端硬碟加入，找到該試算表。若沒有這個選項，就回到主要方法。</li>
+      <li>貼提示詞 B，同 (a) 修改後送出。課後不需要的話，記得把雲端硬碟上的檔案刪除。</li>
+    </ol>
+    <p>上傳失敗時，回到主要方法：複製貼上。</p>
+  </div></details>
+  <details><summary>狀況排除：卡住了怎麼辦？</summary><div class="in">
+    <div class="tbl"><table>
+      <tr><th>狀況</th><th>怎麼做</th></tr>
+      <tr><td>貼上後欄位亂掉、擠在一起</td><td>確認是從 Excel 複製（不是從 PDF 或網頁）；仍不行改用附錄 (a) 上傳 .csv</td></tr>
+      <tr><td>貼上不完整，或 Gemini 說內容太長</td><td>送出前看最後一列有沒有貼到；改用附錄 (a) 或 (b)</td></tr>
+      <tr><td>檢傷時間變成一串小數</td><td>把「檢傷時間」欄格式設為 <code>yyyy/mm/dd hh:mm</code> 後重新複製</td></tr>
+      <tr><td>檢查表的筆數或分類數字不對</td><td>先別要 HTML，追問「請逐列列出你讀到的患者編號」，找出漏讀哪幾列</td></tr>
+      <tr><td>HTML 被截斷</td><td>用追問 C-4</td></tr>
+      <tr><td>找不到預覽</td><td>記事本另存 .html（UTF-8）→ 瀏覽器開</td></tr>
+      <tr><td>開啟後中文亂碼</td><td>重新另存，編碼選 UTF-8；或請 Gemini 確認 <code>&lt;meta charset="UTF-8"&gt;</code> 在檔案開頭</td></tr>
+      <tr><td>圖表空白（沒網路）</td><td>用追問 C-2 改成離線版</td></tr>
+      <tr><td>不小心在檢查前就送出</td><td>若內容已去識別化：繼續即可。若發現有姓名：停止使用該對話，刪除該對話，並告訴講師</td></tr>
+      <tr><td>額度用完、無法登入、網路斷了</td><td>兩人共用一台；或打開<a href="../sample-report.html" target="_blank" rel="noopener">範例報表</a>練習核對數字，提示詞帶回家做</td></tr>
+    </table></div>
+  </div></details>
+  <details class="teach"><summary>講師：課前確認清單</summary><div class="in">
+    <ul class="check" data-list="tprep">
+      <li><label><input type="checkbox"><span>每位學員有 Google 帳號，課前已登入 Gemini</span></label></li>
+      <li><label><input type="checkbox"><span>實測：A1 → Ctrl+A → Ctrl+C 貼到 Gemini，51 列＋標題完整、欄位對齊</span></label></li>
+      <li><label><input type="checkbox"><span>實測：長內容是否被收成附件、能否點開檢視</span></label></li>
+      <li><label><input type="checkbox"><span>實測：Enter 是否直接送出；換行是否用 Shift+Enter</span></label></li>
+      <li><label><input type="checkbox"><span>實測：檢傷時間貼上後顯示為 2026/11/01 09:06，而不是小數</span></label></li>
+      <li><label><input type="checkbox"><span>實測：主提示能否一次輸出完整 HTML</span></label></li>
+      <li><label><input type="checkbox"><span>實測：Canvas／預覽能否顯示 HTML、能否下載</span></label></li>
+      <li><label><input type="checkbox"><span>實測：免費版能否上傳 .csv、「+」選單能否帶入雲端硬碟</span></label></li>
+      <li><label><input type="checkbox"><span>查閱 Google 當時的 Gemini 隱私說明，準備一句話告訴學員</span></label></li>
+      <li><label><input type="checkbox"><span>教室網路；範例報表與練習檔放 USB／雲端（備案）</span></label></li>
+      <li><label><input type="checkbox"><span>付費版 demo 帳號登入、提前跑過並錄影（備案）</span></label></li>
+      <li><label><input type="checkbox"><span>補上本頁「截圖待補」的截圖</span></label></li>
+    </ul>
+  </div></details>
+</section>
+
+</main>
+
+<footer>
+  <p>台東進階 DMAT 課程 · 用 Excel 整理資料，交給 AI 做圖表 · 2026/11/4–5</p>
+  <p>本頁與練習檔皆為<strong>教學模擬資料</strong>：姓名為虛構、日期 2026/11/01 與檢傷時間為虛構；地名與醫院名稱沿用原教學檔。本頁不載入任何外部字型、套件或追蹤程式。</p>
+  <p><button class="railbtn" id="resetChecks" type="button">清除勾選</button> <a href="../">← 回課程首頁</a></p>
+</footer>
+
+<script>
+(function(){
+  var KEY = 'dmat-taitung-2026-11';
+  var body = document.body;
+
+  /* ---- instructor mode ---- */
+  var teachBtn = document.getElementById('teachBtn');
+  function setTeach(on){
+    body.classList.toggle('teaching', on);
+    teachBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    try { localStorage.setItem(KEY + ':teach', on ? '1' : '0'); } catch(e){}
+  }
+  var q = location.search;
+  var startTeach = /[?&]teach\b/.test(q);
+  try { if (!startTeach && localStorage.getItem(KEY + ':teach') === '1') startTeach = true; } catch(e){}
+  setTeach(startTeach);
+  teachBtn.addEventListener('click', function(){ setTeach(!body.classList.contains('teaching')); });
+
+  /* ---- toc + progress ---- */
+  var stages = Array.prototype.slice.call(document.querySelectorAll('section.stage'));
+  var main = stages.filter(function(s){ return +s.dataset.min > 0; });
+  var total = main.reduce(function(a,s){ return a + (+s.dataset.min); }, 0);
+  var tocList = document.getElementById('tocList');
+  var ticks = document.getElementById('ticks');
+  var meta = document.getElementById('meta');
+  stages.forEach(function(s, i){
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + s.id;
+    var num = +s.dataset.min > 0 ? String(i).padStart(2,'0') : '＋';
+    a.innerHTML = '<span class="n">' + num + '</span><span>' + s.dataset.title + '</span>' +
+      (+s.dataset.min > 0 ? '<span class="min">' + s.dataset.min + ' 分</span>' : '');
+    li.appendChild(a); tocList.appendChild(li);
+    s._toc = a;
+  });
+  main.forEach(function(s){
+    var t = document.createElement('span'); t.className = 'tick';
+    t.style.flex = s.dataset.min; ticks.appendChild(t); s._tick = t;
+  });
+  var tocBtn = document.getElementById('tocBtn'), toc = document.getElementById('toc');
+  tocBtn.addEventListener('click', function(){
+    var open = toc.classList.toggle('open');
+    tocBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  tocList.addEventListener('click', function(e){
+    if (e.target.closest('a')) { toc.classList.remove('open'); tocBtn.setAttribute('aria-expanded','false'); }
+  });
+  function onScroll(){
+    var y = window.scrollY + window.innerHeight * 0.3, cur = -1;
+    stages.forEach(function(s, i){ if (s.offsetTop <= y) cur = i; });
+    stages.forEach(function(s, i){ s._toc.classList.toggle('cur', i === cur); });
+    var mi = main.indexOf(stages[cur]);
+    if (cur >= 0 && mi < 0) mi = main.length; /* past main stages */
+    var elapsed = 0;
+    main.forEach(function(s, k){
+      s._tick.classList.toggle('done', k < mi);
+      s._tick.classList.toggle('cur', k === mi);
+      if (k < mi) elapsed += +s.dataset.min;
+    });
+    meta.textContent = mi >= 0 && mi < main.length
+      ? '段落 ' + mi + ' / ' + (main.length - 1) + ' · 累計 ' + elapsed + ' / ' + total + ' 分'
+      : (mi >= main.length ? '資源與附錄' : '共 ' + total + ' 分');
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+  onScroll();
+
+  /* ---- copy buttons ---- */
+  function fallbackCopy(text){
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly',''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta); return ok;
+  }
+  document.querySelectorAll('.prompt').forEach(function(box){
+    var btn = box.querySelector('.copy'), pre = box.querySelector('pre');
+    btn.addEventListener('click', function(){
+      var text = pre.textContent;
+      function done(ok){
+        btn.textContent = ok ? '已複製 ✓' : '請手動選取複製';
+        btn.classList.toggle('ok', ok);
+        setTimeout(function(){ btn.textContent = '複製'; btn.classList.remove('ok'); }, 1800);
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(fallbackCopy(text)); });
+      } else { done(fallbackCopy(text)); }
+    });
+  });
+
+  /* ---- checklists (localStorage) ---- */
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY + ':checks') || '{}'); } catch(e){ state = {}; }
+  function save(){ try { localStorage.setItem(KEY + ':checks', JSON.stringify(state)); } catch(e){} }
+  function updateCount(id){
+    var list = document.querySelector('[data-list="' + id + '"]');
+    var c = document.querySelector('[data-count="' + id + '"]');
+    if (!list || !c) return;
+    var boxes = list.querySelectorAll('input'), n = 0;
+    boxes.forEach(function(b){ if (b.checked) n++; });
+    c.textContent = n + ' / ' + boxes.length + (n === boxes.length ? ' ✓' : '');
+  }
+  document.querySelectorAll('[data-list]').forEach(function(list){
+    var id = list.dataset.list;
+    list.querySelectorAll('input').forEach(function(b, i){
+      var k = id + ':' + i;
+      b.checked = !!state[k];
+      b.addEventListener('change', function(){ state[k] = b.checked; save(); updateCount(id); });
+    });
+    updateCount(id);
+  });
+  document.getElementById('resetChecks').addEventListener('click', function(){
+    state = {}; save();
+    document.querySelectorAll('[data-list] input').forEach(function(b){ b.checked = false; });
+    document.querySelectorAll('[data-list]').forEach(function(l){ updateCount(l.dataset.list); });
+  });
+})();
+</script>
+</body>
+</html>
