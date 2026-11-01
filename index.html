@@ -1,47 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant-TW">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
 <title>DMAT 課程</title>
+<meta name="description" content="DMAT 課程教材：用 Excel 整理資料，交給 AI 做圖表。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&amp;family=Noto+Serif+TC:wght@600;900&amp;display=swap">
 <style>
 :root{
-  --bg:#EDF1F0; --surface:#FFFFFF; --ink:#131D1C; --muted:#586a67; --line:#C6D2D0;
-  --teal:#0E6E66; --tint-teal:#DCEBE9;
+  --paper:#F6F4EE; --card:#FFFFFF; --ink:#16201E; --ink-2:#36413E; --muted:#5B6562; --line:#DCD6CA; --line-2:#C3BCAE;
+  --accent:#0B5A52; --accent-2:#08453F; --signal:#9E3F17;
+  --red:#C62828; --yel:#E0A800; --grn:#2E7D32; --blk:#262626;
   --sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif;
-  --disp:"Barlow Condensed","Arial Narrow","Noto Sans TC",sans-serif;
-}
-@media (prefers-color-scheme:dark){
-  :root{--bg:#0D1514; --surface:#16211F; --ink:#E8EEEC; --muted:#98A8A5; --line:#2C3B39; --teal:#43B8AB; --tint-teal:#12312E}
+  --serif:"Noto Serif TC","Songti TC","PMingLiU","MingLiU",serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
 }
 *{box-sizing:border-box}
-body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:17px; line-height:1.75}
-main{max-width:760px; margin:0 auto; padding:56px clamp(16px,4vw,28px)}
-.eyebrow{font-family:var(--disp); letter-spacing:.2em; color:var(--teal); font-weight:600; margin:0 0 6px}
-h1{font-size:clamp(30px,5vw,44px); font-weight:900; line-height:1.2; margin:0}
-.rule{height:3px; background:var(--teal); width:min(100%,160px); border-radius:2px; margin:18px 0 26px}
-a.course{display:block; text-decoration:none; color:var(--ink); background:var(--surface); border:1px solid var(--line);
-  border-top:3px solid var(--teal); border-radius:7px; padding:18px 20px; margin:0 0 14px}
-a.course:hover,a.course:focus-visible{border-color:var(--teal); background:var(--tint-teal); outline:none}
-a.course .when{font-size:14px; color:var(--muted)}
-a.course h2{font-size:22px; margin:4px 0 6px; line-height:1.35}
-a.course p{margin:0; color:var(--muted); font-size:15.5px}
-a.course .go{display:inline-block; margin-top:10px; color:var(--teal); font-weight:700}
-footer{color:var(--muted); font-size:14px; margin-top:32px}
+html{-webkit-text-size-adjust:100%}
+body{margin:0; min-height:100vh; display:flex; flex-direction:column; background:var(--paper); color:var(--ink);
+  font-family:var(--sans); font-size:17.5px; line-height:1.85; letter-spacing:.01em; -webkit-font-smoothing:antialiased}
+a{color:var(--accent); text-underline-offset:4px}
+:focus-visible{outline:3px solid var(--signal); outline-offset:4px; border-radius:6px}
+.wrap{width:100%; max-width:1180px; margin:0 auto; padding:0 clamp(20px,5vw,56px)}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex; align-items:center; justify-content:space-between; height:60px}
+.brand{font-family:var(--serif); font-weight:900; font-size:17px; letter-spacing:.04em}
+.brand span{color:var(--accent)}
+header small{font-size:13.5px; color:var(--muted)}
+main{flex:1}
+.intro{padding:clamp(64px,11vw,144px) 0 clamp(40px,6vw,72px)}
+.kicker{font-size:14.5px; font-weight:700; letter-spacing:.18em; color:var(--accent); margin:0 0 24px}
+h1{font-family:var(--serif); font-weight:900; font-size:clamp(46px,8vw,104px); line-height:1.1; margin:0 0 32px; letter-spacing:-.005em}
+.stripe{display:flex; width:132px; height:6px; border-radius:3px; overflow:hidden}
+.stripe i{flex:1; transform:scaleX(0); transform-origin:left; animation:grow .6s var(--ease) forwards}
+.stripe i:nth-child(1){background:var(--red)}
+.stripe i:nth-child(2){background:var(--yel); animation-delay:.12s}
+.stripe i:nth-child(3){background:var(--grn); animation-delay:.24s}
+.stripe i:nth-child(4){background:var(--blk); animation-delay:.36s}
+@keyframes grow{to{transform:scaleX(1)}}
+.intro p.lead{max-width:30em; margin:32px 0 0; font-size:clamp(18px,1.9vw,21px); color:var(--ink-2)}
+h2.list{font-size:14px; font-weight:700; letter-spacing:.16em; color:var(--muted); margin:0 0 12px}
+.course{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px 48px; align-items:end; text-decoration:none; color:var(--ink);
+  border-top:1px solid var(--ink); border-bottom:1px solid var(--line); padding:32px 0 36px; position:relative}
+.course .when{grid-column:1 / -1; font-size:14.5px; color:var(--muted); letter-spacing:.04em}
+.course h3{font-family:var(--serif); font-weight:900; font-size:clamp(28px,3.8vw,48px); line-height:1.3; margin:0}
+.course p{margin:12px 0 0; color:var(--ink-2); max-width:34em; font-size:16.5px}
+.course .go{display:inline-flex; align-items:center; gap:10px; font-weight:700; color:#fff; background:var(--accent); border-radius:999px;
+  padding:12px 24px; white-space:nowrap; transition:background .25s, transform .25s var(--ease)}
+.course .go b{transition:transform .25s var(--ease); font-weight:700}
+.course:hover .go{background:var(--accent-2)}
+.course:hover .go b{transform:translateX(4px)}
+.course:hover h3{color:var(--accent)}
+.course .tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; padding:0; list-style:none}
+.course .tags li{font-size:13.5px; border:1px solid var(--line-2); border-radius:999px; padding:1px 12px; color:var(--ink-2)}
+.nw{display:inline-block}
+.more{margin:22px 0 0; font-size:15.5px; color:var(--muted)}
+footer{border-top:1px solid var(--line); margin-top:clamp(72px,10vw,128px)}
+footer .wrap{padding-top:28px; padding-bottom:44px; color:var(--muted); font-size:14.5px}
+footer p{margin:0 0 4px}
+.rise{animation:rise .9s var(--ease) both}
+.rise.d1{animation-delay:.08s} .rise.d2{animation-delay:.18s} .rise.d3{animation-delay:.3s}
+@keyframes rise{from{opacity:0; transform:translateY(20px)}}
+@media (prefers-reduced-motion:reduce){ .rise,.stripe i{animation:none; transform:none} *{transition-duration:0s!important} }
+@media (max-width:720px){
+  .course{grid-template-columns:1fr}
+  .course .go{justify-self:start; margin-top:8px}
+  header small{display:none}
+}
+@media print{ .course .go{display:none} .rise,.stripe i{animation:none; transform:none} body{background:#fff} }
 </style>
 </head>
 <body>
+<header><div class="wrap"><span class="brand">DMAT<span> · 課程</span></span><small>教學用頁面 · 所有資料皆為模擬</small></div></header>
 <main>
-  <p class="eyebrow">DMAT COURSE</p>
-  <h1>DMAT 課程</h1>
-  <div class="rule"></div>
-  <a class="course" href="./taitung-2026-11/">
-    <span class="when">台東進階 DMAT · 2026/11/4–5 · 約 50 分鐘</span>
-    <h2>用 Excel 整理資料，交給 AI 做圖表</h2>
-    <p>檢傷 Excel 先去識別化，再交給 Gemini 做出給 CC 的單一 HTML 報表。跟著步驟做，提示詞一鍵複製。</p>
-    <span class="go">進入課程 →</span>
-  </a>
-  <footer>課程中所有資料皆為教學模擬資料。</footer>
+  <div class="wrap">
+    <section class="intro" aria-labelledby="t">
+      <p class="kicker rise">DMAT COURSE</p>
+      <h1 id="t" class="rise d1">DMAT 課程</h1>
+      <div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      <p class="lead rise d2">給災難醫療隊員的實作課。跟著步驟做，提示詞一鍵複製，帶走自己做的成品。</p>
+    </section>
+    <section class="rise d3" aria-labelledby="courses">
+      <h2 class="list" id="courses">課程</h2>
+      <a class="course" href="./taitung-2026-11/">
+        <span class="when">台東進階 DMAT · 2026/11/4–5 · 50 分鐘</span>
+        <div>
+          <h3><span class="nw">用 Excel 整理資料，</span><span class="nw">交給 AI 做圖表</span></h3>
+          <p>檢傷 Excel 先去識別化，再交給 Gemini，做出一份給協調中心看的單一 HTML 報表。</p>
+          <ul class="tags"><li>去識別化</li><li>Gemini 免費版</li><li>自己對數字</li></ul>
+        </div>
+        <span class="go">進入課程 <b aria-hidden="true">→</b></span>
+      </a>
+      <p class="more">想先看成品？<a href="./sample-report.html">範例報表</a>（虛構資料）</p>
+    </section>
+  </div>
 </main>
+<footer><div class="wrap">
+  <p>課程中所有資料皆為教學模擬資料，姓名、日期與時間皆為虛構。</p>
+  <p>本站只從 Google Fonts 載入字型，沒有追蹤程式。</p>
+</div></footer>
 </body>
 </html>
