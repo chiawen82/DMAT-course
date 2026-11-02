@@ -773,9 +773,7 @@ footer .links{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
     <details class="more"><summary>卡住了？</summary><div class="in">
       <ul class="plain">
         <li>檢查表總列數不是 51：先看貼上的最後一列有沒有貼到，再追問「請逐列列出你讀到的患者編號」。</li>
-        <li>圖表空白：圖表要網路才能載入，改用<a href="#prompt-C2">追問 C-2</a> 做離線版。</li>
         <li>中文變亂碼：重新另存，編碼選 UTF-8。</li>
-        <li>HTML 只給一半：用<a href="#prompt-C4">追問 C-4</a>。</li>
         <li>它一次把問題全列出來：照順序一題一題回答就好。</li>
       </ul>
     </div></details>
@@ -785,7 +783,7 @@ footer .links{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
       <p>成功檢核：檢查表 51 列、SMA-100／SMA-048 重複、去重 50 人；瀏覽器開得起報表；每人說得出一個「AI 問了、我沒想到」的問題。</p>
       <p><strong>分組選項（時間緊時）：</strong>分兩組同時做——一組只做做法一（B）、一組只做做法二（D），最後找另一組的人兩兩並排比較。每人只跑一輪，約省 4 分。</p>
       <ul>
-        <li><span class="test">需實測</span>主提示能否一次輸出完整 HTML、會不會被截斷（被截斷用 C-4）。</li>
+        <li><span class="test">需實測</span>主提示能否一次輸出完整 HTML、會不會被截斷。</li>
         <li><span class="test">需實測</span>免費版 Canvas／預覽能否顯示 HTML、能否下載。</li>
         <li><span class="test">需實測</span>D：是否一次只問一題、問幾題、問什麼（每次可能不同）。</li>
         <li>額度用完或帳號問題：兩人共用一台，或發範例報表直接練「核對數字」。</li>
@@ -865,19 +863,13 @@ footer .links{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
 1. 是否把重複的那一筆（除了患者編號外內容都相同）也算進去了？
 2. 所有數字是否都由內嵌資料計算，而不是手打？
 請列出每個數字的計算方式，修正後給我「完整」的 HTML，不要只給修改片段。</pre></details></div>
-    <div class="prompt compact" id="prompt-C2"><div class="prompt-head"><span class="tag" aria-hidden="true">C-2</span><span class="name"><span class="sr-only">提示詞 C-2：</span>離線版：沒網路也能看</span><button class="copy" type="button" aria-label="複製提示詞 C-2">複製</button></div><details><summary>看全文<span class="sr-only">（提示詞 C-2）</span> · 3 行</summary><pre>CC 那邊可能沒有網路。請改成「不使用任何外部函式庫或 CDN」的版本：
-用純 HTML＋CSS（或內嵌 SVG）畫長條圖，其他內容和數字保持不變。
-給我完整的單一 HTML 檔。</pre></details></div>
-    <div class="prompt compact" id="prompt-C3"><div class="prompt-head"><span class="tag" aria-hidden="true">C-3</span><span class="name"><span class="sr-only">提示詞 C-3：</span>加填寫欄位、可列印</span><button class="copy" type="button" aria-label="複製提示詞 C-3">複製</button></div><details><summary>看全文<span class="sr-only">（提示詞 C-3）</span> · 4 行</summary><pre>請在報表上方加入可填寫的欄位：隊名、回報人、聯絡電話、回報時間（預設空白，讓我自己填）。
+    <div class="prompt compact" id="prompt-C2"><div class="prompt-head"><span class="tag" aria-hidden="true">C-2</span><span class="name"><span class="sr-only">提示詞 C-2：</span>加填寫欄位、可列印</span><button class="copy" type="button" aria-label="複製提示詞 C-2">複製</button></div><details><summary>看全文<span class="sr-only">（提示詞 C-2）</span> · 4 行</summary><pre>請在報表上方加入可填寫的欄位：隊名、回報人、聯絡電話、回報時間（預設空白，讓我自己填）。
 在「給 CC 的重點」下面加一個「需要 CC 協助的事項」空白區塊。
 另外讓版面可以用 A4 直式列印，列印時數字表全部展開。
 其他內容與數字不要改，給我完整的 HTML。</pre></details></div>
-    <div class="prompt compact" id="prompt-C4"><div class="prompt-head"><span class="tag" aria-hidden="true">C-4</span><span class="name"><span class="sr-only">提示詞 C-4：</span>救援：HTML 只給一半</span><button class="copy" type="button" aria-label="複製提示詞 C-4">複製</button></div><details><summary>看全文<span class="sr-only">（提示詞 C-4）</span> · 3 行</summary><pre>你上一則的 HTML 不完整（在【某段文字】之後就斷了）。
-請從頭重新輸出完整的 HTML；如果太長，請把說明文字縮短、
-「給 CC 的重點」改成 3 句，但資料陣列一筆都不能少。</pre></details></div>
     </div>
     <div class="teach tnote"><span class="lab">講師</span>
-      <p>投影五個核對數字；示範一次追問 C-1 或 C-2。成功檢核：至少 5 個數字跟 Excel 一致；檔案關掉重開還打得開。有餘力的學員：C-3，或附錄的進階上傳。</p></div>
+      <p>投影五個核對數字；示範一次追問 C-1。成功檢核：至少 5 個數字跟 Excel 一致；檔案關掉重開還打得開。有餘力的學員：C-2，或附錄的進階上傳。</p></div>
   </div>
 </section>
 
@@ -930,7 +922,7 @@ footer .links{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
     <ul class="dl">
       <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-practice-with-time.xlsx"><b>triage-practice-with-time.xlsx</b><span>練習原檔（含虛構姓名，不可直接貼給 AI）</span><i>下載</i></a></li>
       <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/triage-deidentified-answer.xlsx"><b>triage-deidentified-answer.xlsx</b><span>去識別化解答＋「說明」工作表</span><i>下載</i></a></li>
-      <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/prompt-templates.md"><b>prompt-templates.md</b><span>提示詞範本（A、A-2、B、D、C-1～C-4、進階上傳）</span><i>下載</i></a></li>
+      <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/prompt-templates.md"><b>prompt-templates.md</b><span>提示詞範本（A、A-2、B、D、C-1～C-2、進階上傳）</span><i>下載</i></a></li>
       <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/course-flow-50min.md"><b>course-flow-50min.md</b><span>50 分鐘課程流程（含備案）</span><i>下載</i></a></li>
       <li><a href="https://github.com/chiawen82/DMAT-course/releases/download/taitung-2026-11-v2/sample-report.html"><b>sample-report.html</b><span>範例報表（用主提示 B 做出的成品）</span><i>下載</i></a></li>
     </ul>
@@ -968,10 +960,8 @@ footer .links{display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end}
         <tr><td>貼上不完整，或 Gemini 說內容太長</td><td>送出前看最後一列有沒有貼到；改用 (a) 或 (b)</td></tr>
         <tr><td>檢傷時間變成一串小數</td><td>「檢傷時間」欄格式設為 <code>yyyy/mm/dd hh:mm</code> 後重新複製</td></tr>
         <tr><td>檢查表的筆數或分類數字不對</td><td>先別要 HTML，追問「請逐列列出你讀到的患者編號」</td></tr>
-        <tr><td>HTML 被截斷</td><td>用追問 C-4</td></tr>
         <tr><td>找不到預覽</td><td>記事本另存 .html（UTF-8）→ 瀏覽器開</td></tr>
         <tr><td>開啟後中文亂碼</td><td>重新另存，編碼選 UTF-8；或請 Gemini 確認 <code>&lt;meta charset="UTF-8"&gt;</code> 在檔案開頭</td></tr>
-        <tr><td>圖表空白（沒網路）</td><td>用追問 C-2 改成離線版</td></tr>
         <tr><td>不小心在檢查前就送出</td><td>已去識別化：繼續即可。發現有姓名：停止使用該對話、刪除該對話，並告訴講師</td></tr>
         <tr><td>額度用完、無法登入、網路斷了</td><td>兩人共用一台；或打開<a href="../sample-report.html" target="_blank" rel="noopener">範例報表</a>練習核對數字</td></tr>
         </tbody>
